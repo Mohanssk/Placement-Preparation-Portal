@@ -20,6 +20,7 @@ const assetRoutes = require('./routes/asset.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const atsRoutes = require('./routes/ats.routes');
 const viewRoutes = require('./routes/views.routes');
+const chatRoutes = require('./routes/chat.routes');
 
 const app = express();
 
@@ -40,7 +41,7 @@ app.use(helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "https://generativelanguage.googleapis.com"],
     },
   },
 }));
@@ -96,6 +97,7 @@ app.use('/api/resources', resourceRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/ats', atsRoutes);
+app.use('/api/chat', chatRoutes);
 
 // ── View Routes (SSR Pages) ───────────────────
 app.use('/', viewRoutes);

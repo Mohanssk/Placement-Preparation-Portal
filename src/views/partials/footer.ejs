@@ -6,10 +6,57 @@
     </div><!-- /.app-main -->
   </div><!-- /.app-layout -->
 
+  <!-- AI Chat Panel (Right-Side Drawer) -->
+  <aside class="chat-panel" id="chat-panel">
+    <div class="chat-panel-header">
+      <div class="chat-panel-title">
+        <div class="chat-panel-icon">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <div>
+          <h3>PlaceBot AI</h3>
+          <span class="chat-panel-status">Placement Assistant</span>
+        </div>
+      </div>
+      <button class="chat-panel-close" id="chat-panel-close" title="Close chat">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="chat-messages" id="chat-messages">
+      <!-- Welcome message -->
+      <div class="chat-msg chat-msg-ai">
+        <div class="chat-msg-avatar">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <div class="chat-msg-bubble">
+          <p>Hey there! 👋 I'm <strong>PlaceBot</strong>, your AI placement assistant.</p>
+          <p>Ask me anything about resume tips, interview prep, DSA strategies, or company-specific advice!</p>
+        </div>
+      </div>
+    </div>
+
+    <form class="chat-input-bar" id="chat-form">
+      <input
+        type="text"
+        class="chat-input"
+        id="chat-input"
+        placeholder="Ask about placements, interviews..."
+        autocomplete="off"
+        maxlength="2000"
+      />
+      <button type="submit" class="chat-send-btn" id="chat-send-btn" title="Send message">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </form>
+  </aside>
+
   <!-- Toast Container -->
   <%- include('./toast') %>
 
   <!-- App JavaScript -->
-  <script src="/js/main.js"></script>
+  <script src="/js/main.js?v=<%= Date.now() %>"></script>
+  <script src="/js/chat.js?v=<%= Date.now() %>"></script>
 </body>
 </html>
+
