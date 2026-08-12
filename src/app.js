@@ -54,6 +54,10 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // ── Health Check ───────────────────────────────
+app.get('/', (req, res) => {
+  res.redirect('/api/health');
+});
+
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
