@@ -1,0 +1,95 @@
+<%- include('partials/head', { pageTitle: 'ATS Resume Scanner', metaDescription: 'Scan your resume against a job description and get an instant ATS match score with keyword analysis.' }) %>
+
+<div class="app-layout">
+  <%- include('partials/header', { user: typeof user !== 'undefined' ? user : null, currentPath: '/ats-scanner' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title">ATS Resume Scanner</h2>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <!-- Hero -->
+      <div class="ats-hero">
+        <h1>ATS Resume Analyzer</h1>
+        <p>Upload your resume and paste a job description to instantly see how well your resume matches the role.</p>
+      </div>
+
+      <!-- Scanner Form -->
+      <form id="ats-form" enctype="multipart/form-data">
+        <div class="ats-form-grid">
+          <!-- Upload Zone -->
+          <div>
+            <label class="form-label" style="margin-bottom: var(--space-3);">
+              <i class="fa-solid fa-file-pdf"></i> Resume (PDF) <span class="required">*</span>
+            </label>
+            <div class="upload-zone" id="upload-zone">
+              <input type="file" id="resume-file" name="resume" accept=".pdf,application/pdf">
+              <div class="upload-zone-icon">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+              </div>
+              <h3>Drag & drop your resume here</h3>
+              <p>or click to browse — PDF only, max 5 MB</p>
+              <p id="file-name" class="text-sm font-medium mt-2" style="color: var(--primary-600);"></p>
+            </div>
+          </div>
+
+          <!-- Job Description -->
+          <div>
+            <label for="job-description" class="form-label" style="margin-bottom: var(--space-3);">
+              <i class="fa-solid fa-file-lines"></i> Job Description <span class="required">*</span>
+            </label>
+            <textarea
+              id="job-description"
+              name="jobDescription"
+              class="form-textarea"
+              placeholder="Paste the complete job description here...&#10;&#10;Include requirements, responsibilities, qualifications, and skills mentioned in the job posting."
+              style="min-height: 290px; resize: vertical;"
+              required
+              minlength="20"
+            ></textarea>
+            <p class="form-help">Minimum 20 characters. The more detailed the JD, the better the analysis.</p>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="text-align: center; margin-top: var(--space-8);">
+          <button type="submit" id="scan-btn" class="btn btn-primary btn-lg" style="min-width: 280px;">
+            <i class="fa-solid fa-magnifying-glass-chart"></i> Scan Resume
+          </button>
+        </div>
+      </form>
+
+      <!-- Results (populated by JS) -->
+      <div id="ats-results" class="ats-results"></div>
+
+      <!-- Scan History -->
+      <% if (typeof history !== 'undefined' && history.length > 0) { %>
+        <div class="ats-history">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-clock-rotate-left text-accent"></i> Previous Scans</h3>
+            </div>
+            <div class="card-body">
+              <% history.forEach(scan => { %>
+                <div class="ats-history-item">
+                  <div class="ats-history-score <%= scan.matchScore >= 75 ? 'high' : scan.matchScore >= 50 ? 'medium' : 'low' %>">
+                    <%= scan.matchScore %>%
+                  </div>
+                  <div style="flex: 1;">
+                    <div class="font-medium text-sm"><%= scan.fileName %></div>
+                    <div class="text-xs text-tertiary"><%= new Date(scan.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      <% } %>
+
+<%- include('partials/footer') %>

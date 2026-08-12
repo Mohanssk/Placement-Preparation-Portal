@@ -1,0 +1,95 @@
+<%- include('partials/head', { pageTitle: 'Companies' }) %>
+
+<div class="app-layout">
+  <%- include('partials/header', { user: typeof user !== 'undefined' ? user : null, currentPath: '/companies' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title">Company Directory</h2>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <div class="page-header">
+        <h1>Companies</h1>
+        <p>Browse companies visiting your campus for placements</p>
+      </div>
+
+      <!-- Search / Filter -->
+      <div class="filter-bar">
+        <form action="/companies" method="GET" style="display: flex; gap: var(--space-3); flex-wrap: wrap; width: 100%;">
+          <div class="header-search" style="flex: 1; min-width: 200px;">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" name="search" class="form-input" placeholder="Search companies..." value="<%= typeof search !== 'undefined' ? search : '' %>" style="padding-left: var(--space-10);">
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-search"></i> Search
+          </button>
+        </form>
+      </div>
+
+      <!-- Companies Grid -->
+      <% if (typeof companies !== 'undefined' && companies.length > 0) { %>
+        <div class="grid grid-auto-fill">
+          <% companies.forEach(company => { %>
+            <a href="/companies/<%= company.id %>" class="card-link">
+              <div class="company-card">
+                <div class="company-card-logo">
+                  <%= company.name.charAt(0).toUpperCase() %>
+                </div>
+                <h3><%= company.name %></h3>
+                <p class="company-card-desc">
+                  <%= company.description ? company.description : 'No description available.' %>
+                </p>
+                <% if (company.rolesHired && Array.isArray(company.rolesHired) && company.rolesHired.length > 0) { %>
+                  <div class="tags-list mb-4">
+                    <% company.rolesHired.slice(0, 3).forEach(role => { %>
+                      <span class="tag"><%= role %></span>
+                    <% }) %>
+                    <% if (company.rolesHired.length > 3) { %>
+                      <span class="tag">+<%= company.rolesHired.length - 3 %> more</span>
+                    <% } %>
+                  </div>
+                <% } %>
+                <div class="company-card-stats">
+                  <span><i class="fa-solid fa-comments"></i> <%= company._count ? company._count.experiences : 0 %> experiences</span>
+                  <% if (company.minCGPA) { %>
+                    <span><i class="fa-solid fa-star"></i> Min CGPA: <%= company.minCGPA %></span>
+                  <% } %>
+                </div>
+              </div>
+            </a>
+          <% }) %>
+        </div>
+
+        <!-- Pagination -->
+        <% if (typeof pagination !== 'undefined' && pagination.totalPages > 1) { %>
+          <div class="pagination">
+            <% if (pagination.hasPrevPage) { %>
+              <a href="/companies?page=<%= pagination.page - 1 %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %>">
+                <i class="fa-solid fa-chevron-left"></i>
+              </a>
+            <% } %>
+            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+              <a href="/companies?page=<%= i %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %>" class="<%= i === pagination.page ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+            <% if (pagination.hasNextPage) { %>
+              <a href="/companies?page=<%= pagination.page + 1 %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %>">
+                <i class="fa-solid fa-chevron-right"></i>
+              </a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } else { %>
+        <div class="empty-state">
+          <div class="empty-state-icon"><i class="fa-regular fa-building"></i></div>
+          <h3>No companies found</h3>
+          <p>No companies match your search criteria. Try a different query.</p>
+        </div>
+      <% } %>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,142 @@
+<%- include('partials/head', { pageTitle: company.name }) %>
+
+<div class="app-layout">
+  <%- include('partials/header', { user: typeof user !== 'undefined' ? user : null, currentPath: '/companies' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="header-breadcrumb">
+          <a href="/companies">Companies</a>
+          <span class="separator">/</span>
+          <span><%= company.name %></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <div class="grid" style="grid-template-columns: 2fr 1fr; gap: var(--space-8);">
+        <!-- Main Content -->
+        <div>
+          <div class="detail-header">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="company-card-logo" style="width: 72px; height: 72px; font-size: var(--text-2xl);">
+                <%= company.name.charAt(0).toUpperCase() %>
+              </div>
+              <div>
+                <h1 style="margin-bottom: var(--space-1);"><%= company.name %></h1>
+                <% if (company.website) { %>
+                  <a href="<%= company.website %>" target="_blank" rel="noopener" class="text-sm">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> <%= company.website %>
+                  </a>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <% if (company.description) { %>
+            <div class="card mb-6">
+              <div class="card-header"><h3>About</h3></div>
+              <div class="card-body">
+                <p class="detail-content"><%= company.description %></p>
+              </div>
+            </div>
+          <% } %>
+
+          <!-- Recent Experiences -->
+          <div class="card">
+            <div class="card-header">
+              <h3>Interview Experiences <span class="badge badge-blue badge-lg"><%= company._count ? company._count.experiences : 0 %></span></h3>
+            </div>
+            <div class="card-body">
+              <% if (company.experiences && company.experiences.length > 0) { %>
+                <div class="flex flex-col gap-4">
+                  <% company.experiences.forEach(exp => { %>
+                    <div class="experience-card" style="padding: var(--space-4);">
+                      <div class="experience-card-header">
+                        <h3 style="font-size: var(--text-base);">
+                          <a href="/experiences/<%= exp.id %>"><%= exp.title %></a>
+                        </h3>
+                        <span class="badge <%= exp.outcome === 'SELECTED' ? 'outcome-selected' : exp.outcome === 'REJECTED' ? 'outcome-rejected' : 'outcome-pending' %>">
+                          <%= exp.outcome %>
+                        </span>
+                      </div>
+                      <div class="experience-card-meta">
+                        <span><i class="fa-solid fa-user"></i> <%= exp.author ? exp.author.name : 'Anonymous' %></span>
+                        <% if (exp.yearOfInterview) { %>
+                          <span><i class="fa-regular fa-calendar"></i> <%= exp.yearOfInterview %></span>
+                        <% } %>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+                <% if (company._count && company._count.experiences > 5) { %>
+                  <div class="mt-4">
+                    <a href="/experiences?companyId=<%= company.id %>" class="btn btn-outline btn-sm">
+                      View all <%= company._count.experiences %> experiences <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                  </div>
+                <% } %>
+              <% } else { %>
+                <div class="empty-state" style="padding: var(--space-6) 0;">
+                  <div class="empty-state-icon"><i class="fa-regular fa-comments"></i></div>
+                  <h3>No experiences yet</h3>
+                  <p>Be the first to share your interview experience with this company.</p>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Info -->
+        <div>
+          <div class="card detail-sidebar">
+            <div class="card-header"><h3>Company Details</h3></div>
+            <div class="card-body">
+              <ul class="info-list">
+                <% if (company.eligibilityCriteria) { %>
+                <li>
+                  <span class="label"><i class="fa-solid fa-check-circle text-accent"></i> Eligibility</span>
+                  <span class="value"><%= company.eligibilityCriteria %></span>
+                </li>
+                <% } %>
+                <% if (company.minCGPA) { %>
+                <li>
+                  <span class="label"><i class="fa-solid fa-star text-warning"></i> Min CGPA</span>
+                  <span class="value"><%= company.minCGPA %></span>
+                </li>
+                <% } %>
+                <% if (company.rolesHired && Array.isArray(company.rolesHired) && company.rolesHired.length > 0) { %>
+                <li>
+                  <span class="label"><i class="fa-solid fa-briefcase text-accent"></i> Roles</span>
+                  <span class="value">
+                    <div class="tags-list">
+                      <% company.rolesHired.forEach(role => { %>
+                        <span class="tag"><%= role %></span>
+                      <% }) %>
+                    </div>
+                  </span>
+                </li>
+                <% } %>
+                <% if (company.allowedBranches && Array.isArray(company.allowedBranches) && company.allowedBranches.length > 0) { %>
+                <li>
+                  <span class="label"><i class="fa-solid fa-code-branch text-accent"></i> Branches</span>
+                  <span class="value">
+                    <div class="tags-list">
+                      <% company.allowedBranches.forEach(branch => { %>
+                        <span class="tag"><%= branch %></span>
+                      <% }) %>
+                    </div>
+                  </span>
+                </li>
+                <% } %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+<%- include('partials/footer') %>

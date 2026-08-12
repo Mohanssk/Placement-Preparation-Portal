@@ -1,0 +1,97 @@
+<%- include('partials/head', { pageTitle: 'Welcome', metaDescription: 'Your one-stop destination for campus placement preparation. ATS Resume Scanner, Interview Experiences, Company Directory & more.' }) %>
+
+<div class="landing-layout">
+  <!-- Navigation -->
+  <nav class="landing-nav">
+    <a href="/" class="landing-nav-brand">
+      <div class="icon"><i class="fa-solid fa-graduation-cap"></i></div>
+      <span class="text">Placement Portal</span>
+    </a>
+    <div class="landing-nav-links">
+      <a href="/companies" class="btn btn-ghost">Companies</a>
+      <a href="/experiences" class="btn btn-ghost">Experiences</a>
+      <a href="/prep-hub" class="btn btn-ghost">Prep Hub</a>
+      <a href="/login" class="btn btn-secondary">Sign In</a>
+      <a href="/register" class="btn btn-primary">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="landing-hero">
+    <h1>
+      Ace Your Campus<br>
+      <span class="gradient-text">Placement Journey</span>
+    </h1>
+    <p>
+      Scan your resume with our ATS analyzer, read real interview experiences, 
+      browse company profiles, and access curated preparation resources — all in one place.
+    </p>
+    <div class="landing-hero-actions">
+      <a href="/register" class="btn btn-primary btn-lg">
+        <i class="fa-solid fa-rocket"></i> Start Preparing
+      </a>
+      <a href="/ats-scanner" class="btn btn-outline btn-lg">
+        <i class="fa-solid fa-file-magnifying-glass"></i> Try ATS Scanner
+      </a>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="landing-features">
+    <h2>Everything You Need to Get Placed</h2>
+    <div class="landing-features-grid">
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon" style="background: var(--primary-50); color: var(--primary-600);">
+          <i class="fa-solid fa-file-magnifying-glass"></i>
+        </div>
+        <h3>ATS Resume Scanner</h3>
+        <p>Upload your resume and a job description to get an instant match score, keyword analysis, and actionable feedback.</p>
+      </div>
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon" style="background: var(--success-50); color: var(--success-600);">
+          <i class="fa-solid fa-comments"></i>
+        </div>
+        <h3>Interview Experiences</h3>
+        <p>Read real interview experiences from students who went through placement drives. Filter by company, outcome, and role.</p>
+      </div>
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon" style="background: var(--warning-50); color: var(--warning-600);">
+          <i class="fa-solid fa-building"></i>
+        </div>
+        <h3>Company Directory</h3>
+        <p>Browse companies visiting your campus with eligibility criteria, roles offered, minimum CGPA requirements, and more.</p>
+      </div>
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon" style="background: #faf5ff; color: #9333ea;">
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+        <h3>Preparation Hub</h3>
+        <p>Access curated resources for aptitude, coding, verbal, logical, and technical preparation from top platforms.</p>
+      </div>
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon" style="background: #fdf2f8; color: #db2777;">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <h3>Placement Alerts</h3>
+        <p>Stay updated with placement drive notifications, deadlines, and urgent announcements from your placement cell.</p>
+      </div>
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon" style="background: var(--info-50); color: var(--info-500);">
+          <i class="fa-solid fa-file-lines"></i>
+        </div>
+        <h3>Resume Assets</h3>
+        <p>Download resume templates and explore action words to craft an ATS-friendly resume that stands out.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <p>&copy; <%= new Date().getFullYear() %> Placement Preparation Portal. Built with ❤️ for students.</p>
+  </footer>
+</div>
+
+<%- include('partials/toast') %>
+<script src="/js/main.js"></script>
+</body>
+</html>

@@ -3,9 +3,11 @@
 // ============================================
 
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const { errorHandler } = require('./middleware/errorHandler');
 
@@ -17,17 +19,40 @@ const resourceRoutes = require('./routes/resource.routes');
 const assetRoutes = require('./routes/asset.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const atsRoutes = require('./routes/ats.routes');
+const viewRoutes = require('./routes/views.routes');
 
 const app = express();
 
+// ── View Engine (EJS) ─────────────────────────
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// ── Static Files ──────────────────────────────
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
 // ── Security Middleware ────────────────────────
-app.use(helmet());
+// Helmet with relaxed CSP for EJS pages (allow inline styles, Google Fonts, FontAwesome CDN)
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+    },
+  },
+}));
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
+
+// ── Cookie Parser ─────────────────────────────
+app.use(cookieParser());
 
 // ── Rate Limiting ──────────────────────────────
 const limiter = rateLimit({
@@ -54,10 +79,6 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // ── Health Check ───────────────────────────────
-app.get('/', (req, res) => {
-  res.redirect('/api/health');
-});
-
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -76,12 +97,20 @@ app.use('/api/assets', assetRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/ats', atsRoutes);
 
+// ── View Routes (SSR Pages) ───────────────────
+app.use('/', viewRoutes);
+
 // ── 404 Handler ────────────────────────────────
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.method} ${req.originalUrl} not found.`,
-  });
+  // If it's an API request, respond with JSON
+  if (req.originalUrl.startsWith('/api/')) {
+    return res.status(404).json({
+      success: false,
+      message: `Route ${req.method} ${req.originalUrl} not found.`,
+    });
+  }
+  // Otherwise redirect to landing page
+  res.redirect('/');
 });
 
 // ── Global Error Handler ───────────────────────

@@ -1,0 +1,166 @@
+<%- include('partials/head', { pageTitle: 'Dashboard' }) %>
+
+<div class="app-layout">
+  <%- include('partials/header', { user, currentPath: '/dashboard' }) %>
+
+  <main class="app-main">
+    <!-- Top Header Bar -->
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title">Dashboard</h2>
+      </div>
+      <div class="header-right">
+        <span class="text-sm text-secondary">Welcome back, <strong><%= user.name %></strong></span>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <!-- Stats Cards -->
+      <div class="grid grid-4 mb-8" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <div class="stat-card">
+          <div class="stat-card-icon blue">
+            <i class="fa-solid fa-building"></i>
+          </div>
+          <div>
+            <div class="stat-card-value"><%= typeof companiesCount !== 'undefined' ? companiesCount : 0 %></div>
+            <div class="stat-card-label">Companies</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon green">
+            <i class="fa-solid fa-comments"></i>
+          </div>
+          <div>
+            <div class="stat-card-value"><%= typeof experienceCount !== 'undefined' ? experienceCount : 0 %></div>
+            <div class="stat-card-label">Experiences</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon amber">
+            <i class="fa-solid fa-file-magnifying-glass"></i>
+          </div>
+          <div>
+            <div class="stat-card-value"><%= typeof atsScansCount !== 'undefined' ? atsScansCount : 0 %></div>
+            <div class="stat-card-label">ATS Scans</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon red">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <div>
+            <div class="stat-card-value"><%= typeof notificationsCount !== 'undefined' ? notificationsCount : 0 %></div>
+            <div class="stat-card-label">Notifications</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: var(--space-6);">
+        <!-- Quick Actions -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-bolt text-accent"></i> Quick Actions</h3>
+          </div>
+          <div class="card-body">
+            <div class="flex flex-col gap-3">
+              <a href="/ats-scanner" class="btn btn-primary btn-block" style="justify-content: flex-start;">
+                <i class="fa-solid fa-file-magnifying-glass"></i> Scan Your Resume
+              </a>
+              <a href="/companies" class="btn btn-secondary btn-block" style="justify-content: flex-start;">
+                <i class="fa-solid fa-building"></i> Browse Companies
+              </a>
+              <a href="/experiences" class="btn btn-secondary btn-block" style="justify-content: flex-start;">
+                <i class="fa-solid fa-comments"></i> Read Experiences
+              </a>
+              <a href="/prep-hub" class="btn btn-secondary btn-block" style="justify-content: flex-start;">
+                <i class="fa-solid fa-book-open"></i> Preparation Hub
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Notifications -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-bell text-accent"></i> Recent Notifications</h3>
+          </div>
+          <div class="card-body">
+            <% if (typeof recentNotifications !== 'undefined' && recentNotifications.length > 0) { %>
+              <div class="flex flex-col gap-3">
+                <% recentNotifications.forEach(notif => { %>
+                  <div class="notification-card">
+                    <div class="notification-card-icon <%= notif.type === 'PLACEMENT_DRIVE' ? 'placement' : notif.type === 'DEADLINE' ? 'deadline' : notif.type === 'URGENT' ? 'urgent' : 'general' %>">
+                      <i class="fa-solid <%= notif.type === 'PLACEMENT_DRIVE' ? 'fa-briefcase' : notif.type === 'DEADLINE' ? 'fa-clock' : notif.type === 'URGENT' ? 'fa-exclamation' : 'fa-info' %>"></i>
+                    </div>
+                    <div class="notification-card-body">
+                      <h4><%= notif.title %></h4>
+                      <p><%= notif.message.length > 100 ? notif.message.substring(0, 100) + '...' : notif.message %></p>
+                      <div class="notification-card-meta">
+                        <span><i class="fa-regular fa-clock"></i> <%= new Date(notif.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+                        <% if (notif.companyName) { %>
+                          <span><i class="fa-solid fa-building"></i> <%= notif.companyName %></span>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <div class="empty-state" style="padding: var(--space-8) 0;">
+                <div class="empty-state-icon"><i class="fa-regular fa-bell-slash"></i></div>
+                <h3>No notifications yet</h3>
+                <p>Placement alerts and updates will appear here.</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Info -->
+      <div class="card mt-6">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-user text-accent"></i> Your Profile</h3>
+        </div>
+        <div class="card-body">
+          <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4);">
+            <div>
+              <div class="text-xs text-tertiary mb-1">Name</div>
+              <div class="font-medium"><%= user.name %></div>
+            </div>
+            <div>
+              <div class="text-xs text-tertiary mb-1">Email</div>
+              <div class="font-medium"><%= user.email %></div>
+            </div>
+            <div>
+              <div class="text-xs text-tertiary mb-1">Role</div>
+              <div><span class="badge badge-blue"><%= user.role %></span></div>
+            </div>
+            <% if (user.college) { %>
+            <div>
+              <div class="text-xs text-tertiary mb-1">College</div>
+              <div class="font-medium"><%= user.college %></div>
+            </div>
+            <% } %>
+            <% if (user.branch) { %>
+            <div>
+              <div class="text-xs text-tertiary mb-1">Branch</div>
+              <div class="font-medium"><%= user.branch %></div>
+            </div>
+            <% } %>
+            <% if (user.graduationYear) { %>
+            <div>
+              <div class="text-xs text-tertiary mb-1">Graduation Year</div>
+              <div class="font-medium"><%= user.graduationYear %></div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+<%- include('partials/footer') %>
