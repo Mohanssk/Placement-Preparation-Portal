@@ -1,0 +1,195 @@
+// ============================================
+// Prisma Schema — Placement Preparation Portal
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── Enums ────────────────────────────────────
+
+enum Role {
+  STUDENT
+  ALUMNI
+  ADMIN
+}
+
+enum Outcome {
+  SELECTED
+  REJECTED
+  PENDING
+}
+
+enum PrepCategory {
+  APTITUDE
+  CODING
+  VERBAL
+  LOGICAL
+  TECHNICAL
+}
+
+enum AssetType {
+  TEMPLATE
+  ACTION_WORDS
+}
+
+enum NotifType {
+  PLACEMENT_DRIVE
+  DEADLINE
+  GENERAL
+  URGENT
+}
+
+// ── Models ───────────────────────────────────
+
+model User {
+  id             String   @id @default(cuid())
+  name           String
+  email          String   @unique
+  password       String
+  role           Role     @default(STUDENT)
+  college        String?
+  branch         String?
+  graduationYear Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  experiences   InterviewExperience[]
+  atsScans      AtsScan[]
+  notifications Notification[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Company {
+  id                  String  @id @default(cuid())
+  name                String  @unique
+  description         String?
+  website             String?
+  rolesHired          Json?   @default("[]")
+  eligibilityCriteria String?
+  minCGPA             Decimal? @db.Decimal(3, 2)
+  allowedBranches     Json?   @default("[]")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  experiences InterviewExperience[]
+
+  @@index([name])
+  @@map("companies")
+}
+
+model InterviewExperience {
+  id              String  @id @default(cuid())
+  title           String
+  content         String
+  outcome         Outcome @default(PENDING)
+  role            String?
+  yearOfInterview Int?
+  rounds          Json?   @default("[]")
+
+  authorId  String
+  companyId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  tags    ExperienceTag[]
+
+  @@index([authorId])
+  @@index([companyId])
+  @@index([outcome])
+  @@map("interview_experiences")
+}
+
+model ExperienceTag {
+  id   String @id @default(cuid())
+  name String
+
+  experienceId String
+  experience   InterviewExperience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+
+  @@index([experienceId])
+  @@index([name])
+  @@map("experience_tags")
+}
+
+model PrepResource {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  url         String
+  category    PrepCategory
+  platform    String?
+  sortOrder   Int          @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@map("prep_resources")
+}
+
+model ResumeAsset {
+  id          String    @id @default(cuid())
+  title       String
+  type        AssetType
+  description String?
+  fileUrl     String?
+  content     Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@map("resume_assets")
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  title       String
+  message     String
+  type        NotifType @default(GENERAL)
+  companyName String?
+  eventDate   DateTime?
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([authorId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model AtsScan {
+  id                 String @id @default(cuid())
+  fileName           String
+  matchScore         Int
+  foundKeywords      Json   @default("[]")
+  missingKeywords    Json   @default("[]")
+  categoryBreakdown  Json   @default("{}")
+  jobDescription     String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("ats_scans")
+}
