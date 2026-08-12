@@ -1,0 +1,131 @@
+<%- include('partials/head', { pageTitle: experience.title }) %>
+
+<div class="app-layout">
+  <%- include('partials/header', { user: typeof user !== 'undefined' ? user : null, currentPath: '/experiences' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="header-breadcrumb">
+          <a href="/experiences">Experiences</a>
+          <span class="separator">/</span>
+          <span class="truncate" style="max-width: 200px;"><%= experience.title %></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <div class="grid" style="grid-template-columns: 2fr 1fr; gap: var(--space-8);">
+        <!-- Main Content -->
+        <div>
+          <div class="detail-header">
+            <h1><%= experience.title %></h1>
+            <div class="detail-meta">
+              <span class="badge badge-lg <%= experience.outcome === 'SELECTED' ? 'outcome-selected' : experience.outcome === 'REJECTED' ? 'outcome-rejected' : 'outcome-pending' %>">
+                <i class="fa-solid <%= experience.outcome === 'SELECTED' ? 'fa-check' : experience.outcome === 'REJECTED' ? 'fa-xmark' : 'fa-clock' %>"></i>
+                <%= experience.outcome %>
+              </span>
+              <span><i class="fa-solid fa-user"></i> <%= experience.author ? experience.author.name : 'Anonymous' %></span>
+              <span><i class="fa-solid fa-building"></i> <a href="/companies/<%= experience.company ? experience.company.id : '#' %>"><%= experience.company ? experience.company.name : 'Unknown' %></a></span>
+              <% if (experience.role) { %>
+                <span><i class="fa-solid fa-briefcase"></i> <%= experience.role %></span>
+              <% } %>
+              <% if (experience.yearOfInterview) { %>
+                <span><i class="fa-regular fa-calendar"></i> <%= experience.yearOfInterview %></span>
+              <% } %>
+              <span><i class="fa-regular fa-clock"></i> <%= new Date(experience.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <% if (experience.tags && experience.tags.length > 0) { %>
+            <div class="tags-list mb-6">
+              <% experience.tags.forEach(tag => { %>
+                <span class="tag"><%= tag.name %></span>
+              <% }) %>
+            </div>
+          <% } %>
+
+          <!-- Content -->
+          <div class="card mb-6">
+            <div class="card-body">
+              <div class="detail-content" style="white-space: pre-wrap;"><%= experience.content %></div>
+            </div>
+          </div>
+
+          <!-- Interview Rounds -->
+          <% if (experience.rounds && Array.isArray(experience.rounds) && experience.rounds.length > 0) { %>
+            <div class="card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-list-ol text-accent"></i> Interview Rounds</h3>
+              </div>
+              <div class="card-body">
+                <div class="rounds-timeline">
+                  <% experience.rounds.forEach((round, index) => { %>
+                    <div class="round-item">
+                      <h4>Round <%= index + 1 %><% if (typeof round === 'object' && round.name) { %>: <%= round.name %><% } %></h4>
+                      <p><% if (typeof round === 'string') { %><%= round %><% } else if (typeof round === 'object' && round.description) { %><%= round.description %><% } else { %><%= JSON.stringify(round) %><% } %></p>
+                    </div>
+                  <% }) %>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Sidebar -->
+        <div>
+          <div class="card detail-sidebar">
+            <div class="card-header"><h3>Author Info</h3></div>
+            <div class="card-body">
+              <ul class="info-list">
+                <li>
+                  <span class="label">Name</span>
+                  <span class="value"><%= experience.author ? experience.author.name : 'Anonymous' %></span>
+                </li>
+                <% if (experience.author && experience.author.college) { %>
+                <li>
+                  <span class="label">College</span>
+                  <span class="value"><%= experience.author.college %></span>
+                </li>
+                <% } %>
+                <% if (experience.author && experience.author.branch) { %>
+                <li>
+                  <span class="label">Branch</span>
+                  <span class="value"><%= experience.author.branch %></span>
+                </li>
+                <% } %>
+                <% if (experience.author && experience.author.graduationYear) { %>
+                <li>
+                  <span class="label">Graduation</span>
+                  <span class="value"><%= experience.author.graduationYear %></span>
+                </li>
+                <% } %>
+              </ul>
+            </div>
+          </div>
+
+          <% if (experience.company) { %>
+          <div class="card detail-sidebar mt-4">
+            <div class="card-header"><h3>Company</h3></div>
+            <div class="card-body" style="text-align: center;">
+              <div class="company-card-logo" style="margin: 0 auto var(--space-3); width: 56px; height: 56px; font-size: var(--text-xl);">
+                <%= experience.company.name.charAt(0) %>
+              </div>
+              <h4><%= experience.company.name %></h4>
+              <% if (experience.company.website) { %>
+                <a href="<%= experience.company.website %>" target="_blank" class="text-sm"><i class="fa-solid fa-arrow-up-right-from-square"></i> Website</a>
+              <% } %>
+              <div class="mt-3">
+                <a href="/companies/<%= experience.company.id %>" class="btn btn-outline btn-sm btn-block">View Company</a>
+              </div>
+            </div>
+          </div>
+          <% } %>
+        </div>
+      </div>
+
+<%- include('partials/footer') %>

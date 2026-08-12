@@ -1,0 +1,112 @@
+<%- include('partials/head', { pageTitle: 'Preparation Hub' }) %>
+
+<div class="app-layout">
+  <%- include('partials/header', { user: typeof user !== 'undefined' ? user : null, currentPath: '/prep-hub' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title">Preparation Hub</h2>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <div class="page-header">
+        <h1>Preparation Resources</h1>
+        <p>Curated resources to help you ace every round of the placement process</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="all">
+          <i class="fa-solid fa-layer-group"></i> All
+        </button>
+        <button class="tab-btn" data-tab="aptitude">
+          <i class="fa-solid fa-brain"></i> Aptitude
+        </button>
+        <button class="tab-btn" data-tab="coding">
+          <i class="fa-solid fa-code"></i> Coding
+        </button>
+        <button class="tab-btn" data-tab="verbal">
+          <i class="fa-solid fa-font"></i> Verbal
+        </button>
+        <button class="tab-btn" data-tab="logical">
+          <i class="fa-solid fa-puzzle-piece"></i> Logical
+        </button>
+        <button class="tab-btn" data-tab="technical">
+          <i class="fa-solid fa-microchip"></i> Technical
+        </button>
+      </div>
+
+      <!-- Tab: All -->
+      <div class="tab-content active" id="tab-all">
+        <% if (typeof resources !== 'undefined' && resources.length > 0) { %>
+          <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-4);">
+            <% resources.forEach(resource => { %>
+              <div class="resource-card" data-category="<%= resource.category.toLowerCase() %>">
+                <div class="resource-card-icon <%= resource.category.toLowerCase() %>">
+                  <i class="fa-solid <%= resource.category === 'APTITUDE' ? 'fa-brain' : resource.category === 'CODING' ? 'fa-code' : resource.category === 'VERBAL' ? 'fa-font' : resource.category === 'LOGICAL' ? 'fa-puzzle-piece' : 'fa-microchip' %>"></i>
+                </div>
+                <div class="resource-card-body">
+                  <h4><a href="<%= resource.url %>" target="_blank" rel="noopener"><%= resource.title %> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i></a></h4>
+                  <% if (resource.description) { %>
+                    <p><%= resource.description %></p>
+                  <% } %>
+                  <div class="resource-card-platform">
+                    <span class="badge badge-gray"><%= resource.category %></span>
+                    <% if (resource.platform) { %>
+                      <span style="margin-left: var(--space-2);">on <%= resource.platform %></span>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fa-regular fa-folder-open"></i></div>
+            <h3>No resources yet</h3>
+            <p>Preparation resources will appear here once added.</p>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Category Tabs -->
+      <% ['aptitude', 'coding', 'verbal', 'logical', 'technical'].forEach(cat => { %>
+        <div class="tab-content" id="tab-<%= cat %>">
+          <% const catResources = typeof resources !== 'undefined' ? resources.filter(r => r.category.toLowerCase() === cat) : []; %>
+          <% if (catResources.length > 0) { %>
+            <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-4);">
+              <% catResources.forEach(resource => { %>
+                <div class="resource-card">
+                  <div class="resource-card-icon <%= cat %>">
+                    <i class="fa-solid <%= cat === 'aptitude' ? 'fa-brain' : cat === 'coding' ? 'fa-code' : cat === 'verbal' ? 'fa-font' : cat === 'logical' ? 'fa-puzzle-piece' : 'fa-microchip' %>"></i>
+                  </div>
+                  <div class="resource-card-body">
+                    <h4><a href="<%= resource.url %>" target="_blank" rel="noopener"><%= resource.title %> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i></a></h4>
+                    <% if (resource.description) { %>
+                      <p><%= resource.description %></p>
+                    <% } %>
+                    <div class="resource-card-platform">
+                      <% if (resource.platform) { %>
+                        <span>on <%= resource.platform %></span>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="empty-state">
+              <div class="empty-state-icon"><i class="fa-regular fa-folder-open"></i></div>
+              <h3>No <%= cat %> resources yet</h3>
+              <p>Resources for this category will appear here once added.</p>
+            </div>
+          <% } %>
+        </div>
+      <% }) %>
+
+<%- include('partials/footer') %>

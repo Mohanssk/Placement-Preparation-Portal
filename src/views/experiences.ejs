@@ -1,0 +1,121 @@
+<%- include('partials/head', { pageTitle: 'Interview Experiences' }) %>
+
+<div class="app-layout">
+  <%- include('partials/header', { user: typeof user !== 'undefined' ? user : null, currentPath: '/experiences' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title">Interview Experiences</h2>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <div class="page-header">
+        <h1>Interview Experiences</h1>
+        <p>Learn from real interview experiences shared by students and alumni</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <form action="/experiences" method="GET" style="display: flex; gap: var(--space-3); flex-wrap: wrap; width: 100%; align-items: flex-end;">
+          <div style="flex: 1; min-width: 200px;">
+            <input type="text" name="search" class="form-input" placeholder="Search experiences..." value="<%= typeof search !== 'undefined' ? search : '' %>">
+          </div>
+          <div style="min-width: 160px;">
+            <select name="outcome" class="form-select">
+              <option value="">All Outcomes</option>
+              <option value="SELECTED" <%= typeof outcome !== 'undefined' && outcome === 'SELECTED' ? 'selected' : '' %>>Selected</option>
+              <option value="REJECTED" <%= typeof outcome !== 'undefined' && outcome === 'REJECTED' ? 'selected' : '' %>>Rejected</option>
+              <option value="PENDING" <%= typeof outcome !== 'undefined' && outcome === 'PENDING' ? 'selected' : '' %>>Pending</option>
+            </select>
+          </div>
+          <% if (typeof companies !== 'undefined' && companies.length > 0) { %>
+          <div style="min-width: 160px;">
+            <select name="companyId" class="form-select">
+              <option value="">All Companies</option>
+              <% companies.forEach(c => { %>
+                <option value="<%= c.id %>" <%= typeof companyId !== 'undefined' && companyId === c.id ? 'selected' : '' %>><%= c.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <% } %>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-filter"></i> Filter
+          </button>
+        </form>
+      </div>
+
+      <!-- Experience Feed -->
+      <% if (typeof experiences !== 'undefined' && experiences.length > 0) { %>
+        <div class="flex flex-col gap-4">
+          <% experiences.forEach(exp => { %>
+            <div class="experience-card">
+              <div class="experience-card-header">
+                <h3><a href="/experiences/<%= exp.id %>"><%= exp.title %></a></h3>
+                <span class="badge badge-lg <%= exp.outcome === 'SELECTED' ? 'outcome-selected' : exp.outcome === 'REJECTED' ? 'outcome-rejected' : 'outcome-pending' %>">
+                  <i class="fa-solid <%= exp.outcome === 'SELECTED' ? 'fa-check' : exp.outcome === 'REJECTED' ? 'fa-xmark' : 'fa-clock' %>"></i>
+                  <%= exp.outcome %>
+                </span>
+              </div>
+              <div class="experience-card-meta">
+                <span><i class="fa-solid fa-user"></i> <%= exp.author ? exp.author.name : 'Anonymous' %></span>
+                <span><i class="fa-solid fa-building"></i> <%= exp.company ? exp.company.name : 'Unknown' %></span>
+                <% if (exp.role) { %>
+                  <span><i class="fa-solid fa-briefcase"></i> <%= exp.role %></span>
+                <% } %>
+                <% if (exp.yearOfInterview) { %>
+                  <span><i class="fa-regular fa-calendar"></i> <%= exp.yearOfInterview %></span>
+                <% } %>
+              </div>
+              <p class="experience-card-excerpt"><%= exp.content %></p>
+              <div class="experience-card-footer">
+                <div class="tags-list">
+                  <% if (exp.tags && exp.tags.length > 0) { %>
+                    <% exp.tags.slice(0, 4).forEach(tag => { %>
+                      <span class="tag"><%= tag.name %></span>
+                    <% }) %>
+                    <% if (exp.tags.length > 4) { %>
+                      <span class="tag">+<%= exp.tags.length - 4 %></span>
+                    <% } %>
+                  <% } %>
+                </div>
+                <a href="/experiences/<%= exp.id %>" class="btn btn-ghost btn-sm">
+                  Read more <i class="fa-solid fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
+        <!-- Pagination -->
+        <% if (typeof pagination !== 'undefined' && pagination.totalPages > 1) { %>
+          <div class="pagination">
+            <% if (pagination.hasPrevPage) { %>
+              <a href="/experiences?page=<%= pagination.page - 1 %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %><%= typeof outcome !== 'undefined' && outcome ? '&outcome=' + outcome : '' %><%= typeof companyId !== 'undefined' && companyId ? '&companyId=' + companyId : '' %>">
+                <i class="fa-solid fa-chevron-left"></i>
+              </a>
+            <% } %>
+            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+              <a href="/experiences?page=<%= i %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %><%= typeof outcome !== 'undefined' && outcome ? '&outcome=' + outcome : '' %><%= typeof companyId !== 'undefined' && companyId ? '&companyId=' + companyId : '' %>"
+                 class="<%= i === pagination.page ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+            <% if (pagination.hasNextPage) { %>
+              <a href="/experiences?page=<%= pagination.page + 1 %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %><%= typeof outcome !== 'undefined' && outcome ? '&outcome=' + outcome : '' %><%= typeof companyId !== 'undefined' && companyId ? '&companyId=' + companyId : '' %>">
+                <i class="fa-solid fa-chevron-right"></i>
+              </a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } else { %>
+        <div class="empty-state">
+          <div class="empty-state-icon"><i class="fa-regular fa-comments"></i></div>
+          <h3>No experiences found</h3>
+          <p>No interview experiences match your filters. Try adjusting your search criteria.</p>
+        </div>
+      <% } %>
+
+<%- include('partials/footer') %>

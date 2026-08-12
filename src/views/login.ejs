@@ -1,0 +1,46 @@
+<%- include('partials/head', { pageTitle: 'Sign In', metaDescription: 'Sign in to your Placement Preparation Portal account.' }) %>
+
+<div class="auth-layout">
+  <div class="auth-card">
+    <div class="auth-card-header">
+      <div class="auth-card-logo">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <h1>Welcome Back</h1>
+      <p>Sign in to continue your placement journey</p>
+    </div>
+
+    <div class="auth-card-body">
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="flash-message error">
+          <i class="fa-solid fa-circle-exclamation"></i> <%= error %>
+        </div>
+      <% } %>
+
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address <span class="required">*</span></label>
+          <input type="email" id="email" name="email" class="form-input" placeholder="you@college.edu" required autofocus>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password <span class="required">*</span></label>
+          <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required minlength="6">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In
+        </button>
+      </form>
+    </div>
+
+    <div class="auth-card-footer">
+      Don't have an account? <a href="/register">Create one</a>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/toast') %>
+<script src="/js/main.js"></script>
+</body>
+</html>

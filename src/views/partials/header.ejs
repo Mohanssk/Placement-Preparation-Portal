@@ -1,0 +1,62 @@
+<!-- Sidebar -->
+<aside class="app-sidebar" id="app-sidebar">
+  <a href="/" class="sidebar-brand">
+    <div class="sidebar-brand-icon">
+      <i class="fa-solid fa-graduation-cap"></i>
+    </div>
+    <div class="sidebar-brand-text">
+      Placement Portal
+      <small>Preparation Hub</small>
+    </div>
+  </a>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-title">Main</div>
+    <a href="/dashboard" class="sidebar-link <%= typeof currentPath !== 'undefined' && currentPath === '/dashboard' ? 'active' : '' %>">
+      <i class="fa-solid fa-grid-2"></i>
+      Dashboard
+    </a>
+    <a href="/companies" class="sidebar-link <%= typeof currentPath !== 'undefined' && currentPath === '/companies' ? 'active' : '' %>">
+      <i class="fa-solid fa-building"></i>
+      Companies
+    </a>
+    <a href="/experiences" class="sidebar-link <%= typeof currentPath !== 'undefined' && currentPath === '/experiences' ? 'active' : '' %>">
+      <i class="fa-solid fa-comments"></i>
+      Experiences
+    </a>
+
+    <div class="sidebar-section-title">Resources</div>
+    <a href="/prep-hub" class="sidebar-link <%= typeof currentPath !== 'undefined' && currentPath === '/prep-hub' ? 'active' : '' %>">
+      <i class="fa-solid fa-book-open"></i>
+      Prep Hub
+    </a>
+    <a href="/ats-scanner" class="sidebar-link <%= typeof currentPath !== 'undefined' && currentPath === '/ats-scanner' ? 'active' : '' %>">
+      <i class="fa-solid fa-file-magnifying-glass"></i>
+      ATS Scanner
+    </a>
+  </nav>
+
+  <% if (typeof user !== 'undefined' && user) { %>
+  <div class="sidebar-user">
+    <div class="sidebar-user-avatar">
+      <%= user.name ? user.name.charAt(0).toUpperCase() : '?' %>
+    </div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name"><%= user.name %></div>
+      <div class="sidebar-user-role"><%= user.role ? user.role.toLowerCase() : 'student' %></div>
+    </div>
+    <a href="#" class="logout-link btn btn-ghost btn-icon" title="Logout">
+      <i class="fa-solid fa-right-from-bracket"></i>
+    </a>
+  </div>
+  <% } else { %>
+  <div class="sidebar-user" style="justify-content: center;">
+    <a href="/login" class="btn btn-primary btn-sm" style="width: 100%;">
+      <i class="fa-solid fa-right-to-bracket"></i> Sign In
+    </a>
+  </div>
+  <% } %>
+</aside>
+
+<!-- Sidebar Overlay (Mobile) -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
