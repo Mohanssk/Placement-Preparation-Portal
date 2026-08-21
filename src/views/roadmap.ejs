@@ -1,0 +1,194 @@
+<%- include('partials/head', { pageTitle: 'Roadmap AI', metaDescription: 'AI-powered career roadmaps with free certifications and an AI mentor for your learning journey.' }) %>
+
+<div class="app-layout">
+  <%- include('partials/header', { user, currentPath: '/roadmap' }) %>
+
+  <main class="app-main">
+    <!-- Top Header Bar -->
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title" id="current-skill-title">Roadmap AI</h2>
+      </div>
+      <div class="header-right">
+        <span class="text-sm text-secondary">
+          <i class="fa-solid fa-route text-accent"></i>
+          AI-Powered Career Paths
+        </span>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <!-- Three-Column Roadmap Layout -->
+      <div class="roadmap-layout">
+
+        <!-- ─── Left Panel: Skills List ─── -->
+        <div class="roadmap-skills-panel">
+          <div class="roadmap-panel-header">
+            <h3><i class="fa-solid fa-compass text-accent"></i> Career Paths</h3>
+            <span class="badge badge-blue" id="skills-count">0</span>
+          </div>
+          <div class="roadmap-skills-list" id="skills-list">
+            <!-- Skills populated by JS -->
+            <div class="roadmap-skills-loading">
+              <div class="spinner spinner-dark"></div>
+              <span class="text-sm text-tertiary">Loading skills…</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Center Panel: Roadmap Flowchart ─── -->
+        <div class="roadmap-center" id="roadmap-center">
+          <div class="roadmap-container" id="roadmap-container">
+            <div class="roadmap-welcome">
+              <div class="roadmap-welcome-icon">
+                <i class="fa-solid fa-map-location-dot"></i>
+              </div>
+              <h3>Select a Career Path</h3>
+              <p class="text-secondary">Choose a skill from the left panel to generate your personalized learning roadmap.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Right Panel: Tabbed Info + AI Mentor ─── -->
+        <aside class="roadmap-info-panel" id="info-panel">
+
+          <!-- Tab Bar (fixed, never shrinks) -->
+          <div class="roadmap-tabs" role="tablist" aria-label="Topic details and AI mentor">
+            <button
+              type="button"
+              class="roadmap-tab is-active"
+              id="tab-info"
+              role="tab"
+              aria-selected="true"
+              aria-controls="panel-info"
+              data-tab="info"
+            >
+              <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+              <span>Topic Info</span>
+            </button>
+            <button
+              type="button"
+              class="roadmap-tab"
+              id="tab-chat"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-chat"
+              data-tab="chat"
+            >
+              <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+              <span>AI Mentor</span>
+              <span class="roadmap-tab-dot" id="chat-unread-dot" aria-hidden="true"></span>
+            </button>
+            <button
+              type="button"
+              class="roadmap-info-close"
+              id="info-panel-close"
+              title="Close panel"
+              aria-label="Close panel"
+            >
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <!-- ── Tab Panel: Topic Info ── -->
+          <section
+            class="roadmap-tabpanel roadmap-info-section is-active"
+            id="panel-info"
+            role="tabpanel"
+            aria-labelledby="tab-info"
+            tabindex="0"
+          >
+            <!-- Pinned title -->
+            <header class="roadmap-info-header">
+              <h3 id="node-title">
+                <i class="fa-solid fa-circle-info text-accent" aria-hidden="true"></i>
+                Topic Info
+              </h3>
+            </header>
+
+            <!-- The ONLY scroller in this tab -->
+            <div class="roadmap-info-scroll">
+              <div class="roadmap-info-body" id="node-explain-content">
+                <div class="roadmap-info-empty">
+                  <div class="roadmap-info-empty-icon">
+                    <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
+                  </div>
+                  <p class="roadmap-info-empty-title">No topic selected</p>
+                  <p class="roadmap-info-empty-text">
+                    Pick a career path, then click any node on the roadmap to get an AI
+                    breakdown plus free certifications for that topic.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Certifications -->
+              <div class="roadmap-certs-section" id="cert-section" hidden>
+                <h4 class="roadmap-certs-title">
+                  <i class="fa-solid fa-certificate text-accent" aria-hidden="true"></i>
+                  Free Certifications
+                </h4>
+                <ul class="roadmap-certs-list" id="node-certs-list"></ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- ── Tab Panel: AI Mentor ── -->
+          <section
+            class="roadmap-tabpanel roadmap-chat-section"
+            id="panel-chat"
+            role="tabpanel"
+            aria-labelledby="tab-chat"
+            tabindex="0"
+          >
+            <!-- Pinned chat identity -->
+            <header class="roadmap-chat-header">
+              <div class="roadmap-chat-avatar">
+                <i class="fa-solid fa-robot" aria-hidden="true"></i>
+              </div>
+              <div class="roadmap-chat-identity">
+                <span class="roadmap-chat-name">AI Mentor</span>
+                <span class="roadmap-chat-status">Ask anything about learning</span>
+              </div>
+            </header>
+
+            <!-- The ONLY scroller in this tab -->
+            <div class="roadmap-chat-messages" id="roadmap-chat-messages" aria-live="polite">
+              <div class="roadmap-chat-msg roadmap-chat-msg-ai">
+                <div class="roadmap-chat-bubble">
+                  Hi! 👋 I'm your AI mentor. Ask me anything about your learning journey!
+                </div>
+              </div>
+            </div>
+
+            <!-- Permanently pinned to the bottom of the panel -->
+            <form class="roadmap-chat-input-bar" id="roadmap-chat-form" autocomplete="off">
+              <input
+                type="text"
+                class="roadmap-chat-input"
+                id="roadmap-chat-input"
+                placeholder="Ask your AI mentor anything…"
+                aria-label="Message the AI mentor"
+                autocomplete="off"
+                maxlength="2000"
+              />
+              <button
+                type="submit"
+                class="roadmap-chat-send"
+                id="roadmap-send-btn"
+                title="Send message"
+                aria-label="Send message"
+              >
+                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+              </button>
+            </form>
+          </section>
+
+        </aside><!-- /.roadmap-info-panel -->
+
+      </div><!-- /.roadmap-layout -->
+    </div><!-- /.app-content -->
+
+<%- include('partials/footer') %>

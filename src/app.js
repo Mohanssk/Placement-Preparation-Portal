@@ -21,6 +21,7 @@ const notificationRoutes = require('./routes/notification.routes');
 const atsRoutes = require('./routes/ats.routes');
 const viewRoutes = require('./routes/views.routes');
 const chatRoutes = require('./routes/chat.routes');
+const roadmapRoutes = require('./routes/roadmap.routes');
 
 const app = express();
 
@@ -98,6 +99,7 @@ app.use('/api/assets', assetRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/ats', atsRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/roadmap', roadmapRoutes);
 
 // ── View Routes (SSR Pages) ───────────────────
 app.use('/', viewRoutes);

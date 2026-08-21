@@ -18,6 +18,7 @@ const {
   experiencesList,
   experienceDetail,
   atsScanner,
+  roadmapPage,
   logout,
 } = require('../controllers/views.controller');
 
@@ -36,6 +37,9 @@ router.get('/experiences/:id', optionalCookieAuth, experienceDetail);
 // ── Auth Required Pages ────────────────────────
 router.get('/dashboard', cookieAuth, dashboard);
 router.get('/ats-scanner', cookieAuth, atsScanner);
+
+// ── Public (AI Tools) ─────────────────────────
+router.get('/roadmap', optionalCookieAuth, roadmapPage);
 
 // ── Logout ─────────────────────────────────────
 router.get('/logout', logout);

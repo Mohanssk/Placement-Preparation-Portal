@@ -334,6 +334,17 @@ const logout = (req, res) => {
   res.redirect('/login');
 };
 
+/**
+ * GET /roadmap
+ * AI-powered career roadmap page — public with optional personalization.
+ */
+const roadmapPage = (req, res) => {
+  res.render('roadmap', {
+    user: req.user || null,
+    currentPath: '/roadmap',
+  });
+};
+
 module.exports = {
   landing,
   loginPage,
@@ -345,5 +356,6 @@ module.exports = {
   experiencesList,
   experienceDetail,
   atsScanner,
+  roadmapPage,
   logout,
 };

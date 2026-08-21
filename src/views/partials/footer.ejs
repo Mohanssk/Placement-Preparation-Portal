@@ -57,6 +57,9 @@
   <!-- App JavaScript -->
   <script src="/js/main.js?v=<%= Date.now() %>"></script>
   <script src="/js/chat.js?v=<%= Date.now() %>"></script>
+  <% if (typeof currentPath !== 'undefined' && currentPath === '/roadmap') { %>
+  <script src="/js/roadmap.js?v=<%= Date.now() %>"></script>
+  <% } %>
 </body>
 </html>
 

@@ -2786,3 +2786,755 @@ body.chat-open .app-main {
     margin-right: 0;
   }
 }
+
+/* ============================================
+   Roadmap AI — Feature Styles
+   ============================================ */
+
+/* ── Three-Column Layout ─────────────────── */
+
+/* Remove .app-content padding when it wraps the full-bleed roadmap grid */
+.app-content:has(.roadmap-layout) {
+  padding: 0;
+  max-width: none;
+}
+
+.roadmap-layout {
+  display: grid;
+  /* Right panel is fluid: ~1/4 of the viewport, floored at 400px, capped at 480px.
+     minmax(0, 1fr) on the center column stops long node labels blowing out the grid. */
+  grid-template-columns: 240px minmax(0, 1fr) clamp(400px, 25vw, 480px);
+  gap: 0;
+  height: calc(100vh - var(--header-height));
+  overflow: hidden;
+}
+
+/* ── Left Panel: Skills ──────────────────── */
+.roadmap-skills-panel {
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.roadmap-panel-header {
+  padding: var(--space-5) var(--space-5);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.roadmap-panel-header h3 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.roadmap-skills-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.roadmap-skills-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) 0;
+}
+
+.roadmap-skill-btn {
+  width: 100%;
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 450;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: capitalize;
+  line-height: var(--leading-normal);
+}
+
+.roadmap-skill-btn:hover {
+  background: var(--gray-100);
+  color: var(--text-primary);
+}
+
+.roadmap-skill-btn.active {
+  background: var(--primary-50);
+  color: var(--primary-700);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--primary-500);
+}
+
+/* ── Center Panel: Roadmap ───────────────── */
+.roadmap-center {
+  overflow-y: auto;
+  background: var(--bg-secondary);
+  padding: var(--space-8);
+}
+
+.roadmap-container {
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.roadmap-welcome {
+  text-align: center;
+  padding: var(--space-16) var(--space-6);
+  color: var(--text-tertiary);
+}
+
+.roadmap-welcome-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-2xl);
+  background: var(--primary-50);
+  color: var(--primary-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-3xl);
+  margin: 0 auto var(--space-6);
+}
+
+.roadmap-welcome h3 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.roadmap-welcome p {
+  font-size: var(--text-sm);
+  max-width: 300px;
+  margin: 0 auto;
+  line-height: var(--leading-relaxed);
+}
+
+.roadmap-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) 0;
+  color: var(--text-tertiary);
+  font-size: var(--text-sm);
+}
+
+.roadmap-error {
+  color: var(--danger-600);
+  background: var(--danger-50);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ── Roadmap Nodes ───────────────────────── */
+.roadmap-node-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.roadmap-node-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-card);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+}
+
+.roadmap-node-btn:hover {
+  border-color: var(--primary-300);
+  box-shadow: var(--shadow-md), 0 0 0 3px var(--primary-50);
+  transform: translateY(-1px);
+}
+
+.roadmap-node-btn.active {
+  border-color: var(--primary-500);
+  box-shadow: var(--shadow-md), 0 0 0 3px rgba(59, 130, 246, 0.15);
+  background: var(--primary-50);
+}
+
+.roadmap-node-number {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: white;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.roadmap-node-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ── Connecting Line ─────────────────────── */
+.roadmap-node-line {
+  width: 2px;
+  height: 28px;
+  background: linear-gradient(to bottom, var(--primary-400), var(--primary-200));
+  flex-shrink: 0;
+}
+
+/* ── Right Panel: Tabbed Info + AI Mentor ─── */
+
+/* Strict flex column, full height. The panel itself never scrolls —
+   each tab owns exactly one internal scroller. */
+.roadmap-info-panel {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  background: var(--bg-primary);
+  border-left: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Tab Bar (fixed, never shrinks) ──────── */
+.roadmap-tabs {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4) 0;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-primary);
+}
+
+.roadmap-tab {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-2);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+/* Active underline sits on top of the tab-bar border */
+.roadmap-tab::after {
+  content: '';
+  position: absolute;
+  left: var(--space-2);
+  right: var(--space-2);
+  bottom: -1px;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  transition: background var(--transition-fast);
+}
+
+.roadmap-tab:hover {
+  color: var(--text-secondary);
+  background: var(--gray-50);
+}
+
+.roadmap-tab.is-active {
+  color: var(--primary-600);
+}
+
+.roadmap-tab.is-active::after {
+  background: var(--primary-500);
+}
+
+.roadmap-tab:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: -2px;
+}
+
+/* Unread indicator on the AI Mentor tab */
+.roadmap-tab-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background: var(--primary-500);
+  flex-shrink: 0;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.roadmap-tab-dot.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Tab Panels ──────────────────────────── */
+/* flex: 1 + min-height: 0 is what actually lets the inner scroller work.
+   Without min-height: 0 the panel grows to its content and clips instead. */
+.roadmap-tabpanel {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.roadmap-tabpanel.is-active {
+  display: flex;
+}
+
+.roadmap-tabpanel:focus {
+  outline: none;
+}
+
+/* ── Tab Panel: Topic Info ───────────────── */
+.roadmap-info-header {
+  flex: 0 0 auto;
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.roadmap-info-header h3 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  color: var(--text-primary);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  text-transform: capitalize;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+/* Desktop: no close button (panel is a permanent grid column) */
+.roadmap-info-close {
+  display: none;
+}
+
+/* The single scroll region for this tab */
+.roadmap-info-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--space-6) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.roadmap-info-body {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* Empty state */
+.roadmap-info-empty {
+  padding: var(--space-10) var(--space-2);
+  text-align: center;
+}
+
+.roadmap-info-empty-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto var(--space-5);
+  border-radius: var(--radius-2xl);
+  background: var(--primary-50);
+  color: var(--primary-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xl);
+}
+
+.roadmap-info-empty-title {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.roadmap-info-empty-text {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  line-height: var(--leading-relaxed);
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.roadmap-explanation strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.roadmap-ai-heading {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: var(--space-5) 0 var(--space-2);
+}
+
+.roadmap-ai-heading:first-child {
+  margin-top: 0;
+}
+
+.roadmap-ai-list {
+  padding-left: var(--space-5);
+  list-style: disc;
+  margin: var(--space-3) 0;
+}
+
+.roadmap-ai-list li {
+  margin-bottom: var(--space-2);
+}
+
+/* ── Certifications ──────────────────────── */
+/* No `display` here on purpose — keeps the [hidden] attribute working. */
+.roadmap-certs-section {
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-light);
+}
+
+.roadmap-certs-title {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.roadmap-certs-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.roadmap-cert-link {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--gray-50);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--text-link);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.roadmap-cert-link i {
+  margin-top: 0.2em;
+  font-size: var(--text-xs);
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.roadmap-cert-link:hover {
+  background: var(--primary-50);
+  border-color: var(--primary-200);
+  color: var(--primary-700);
+}
+
+/* ── Tab Panel: AI Mentor Chat ───────────── */
+/* No hard-coded height — the tab panel gives it 100% of the vertical space. */
+.roadmap-chat-header {
+  flex: 0 0 auto;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.roadmap-chat-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+}
+
+.roadmap-chat-identity {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.roadmap-chat-name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: var(--leading-tight);
+}
+
+.roadmap-chat-status {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+/* The single scroll region for this tab */
+.roadmap-chat-messages {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.roadmap-chat-msg {
+  display: flex;
+}
+
+.roadmap-chat-msg-user {
+  justify-content: flex-end;
+}
+
+.roadmap-chat-bubble {
+  max-width: 88%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  word-break: break-word;
+}
+
+.roadmap-chat-msg-ai .roadmap-chat-bubble {
+  background: var(--gray-100);
+  color: var(--text-primary);
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+.roadmap-chat-msg-user .roadmap-chat-bubble {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: white;
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+.roadmap-chat-msg-error .roadmap-chat-bubble {
+  background: var(--danger-50);
+  color: var(--danger-600);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+/* Pinned to the bottom of the panel, always visible */
+.roadmap-chat-input-bar {
+  flex: 0 0 auto;
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--bg-primary);
+}
+
+.roadmap-chat-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.roadmap-chat-input:focus {
+  border-color: var(--primary-500);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.roadmap-chat-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.roadmap-chat-send {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: white;
+  font-size: var(--text-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+}
+
+.roadmap-chat-send:hover:not(:disabled) {
+  box-shadow: var(--shadow-md), 0 0 0 3px var(--primary-50);
+  transform: translateY(-1px);
+}
+
+.roadmap-chat-send:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.roadmap-chat-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Responsive: Tablet ──────────────────── */
+@media (max-width: 1200px) {
+  .roadmap-layout {
+    grid-template-columns: 200px minmax(0, 1fr) 380px;
+  }
+}
+
+/* ── Responsive: Small Tablet ────────────── */
+@media (max-width: 1024px) {
+  .roadmap-layout {
+    grid-template-columns: 180px minmax(0, 1fr) 340px;
+  }
+}
+
+/* ── Responsive: Mobile ──────────────────── */
+@media (max-width: 900px) {
+  .roadmap-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .roadmap-skills-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .roadmap-skills-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    overflow-y: visible;
+    overflow-x: auto;
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .roadmap-skill-btn {
+    width: auto;
+    white-space: nowrap;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+  }
+
+  .roadmap-skill-btn.active {
+    box-shadow: none;
+    border-color: var(--primary-400);
+  }
+
+  .roadmap-center {
+    min-height: 300px;
+    padding: var(--space-6);
+  }
+
+  /* On mobile the right panel becomes a fixed slide-in drawer. */
+  .roadmap-info-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 400px;
+    z-index: 100;
+    transform: translateX(100%);
+    transition: transform var(--transition-base);
+    box-shadow: var(--shadow-2xl);
+    border-left: 1px solid var(--border-light);
+  }
+
+  .roadmap-info-panel.visible {
+    transform: translateX(0);
+  }
+
+  .roadmap-info-close {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    transition: color var(--transition-fast), background var(--transition-fast);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .roadmap-info-close:hover {
+    background: var(--gray-100);
+    color: var(--text-primary);
+  }
+}
+
+@media (max-width: 480px) {
+  .roadmap-info-panel {
+    max-width: 100%;
+  }
+}
