@@ -114,11 +114,13 @@
    * @returns {{field: HTMLElement, message: string}|null} First problem found
    */
   function firstProblem(values) {
+    const fields = form.elements;
+
     if (!values.title) {
-      return { field: form.title, message: 'A headline is required.' };
+      return { field: fields.title, message: 'A headline is required.' };
     }
     if (!values.companyId) {
-      return { field: form.companyId, message: 'Please choose the company you interviewed with.' };
+      return { field: fields.companyId, message: 'Please choose the company you interviewed with.' };
     }
     if (!values.content) {
       return { field: contentField, message: 'Please describe your interview experience.' };
@@ -133,7 +135,7 @@
 
     const year = values.yearOfInterview;
     if (year && (!/^\d{4}$/.test(year) || Number(year) < 2000 || Number(year) > 2100)) {
-      return { field: form.yearOfInterview, message: 'Year of interview must be a 4-digit year.' };
+      return { field: fields.yearOfInterview, message: 'Year of interview must be a 4-digit year.' };
     }
 
     return null;
@@ -184,12 +186,18 @@
     e.preventDefault();
     clearError();
 
+    // Read through form.elements, not form.<name>. Two of these controls are
+    // named after IDL attributes HTMLElement already defines (`title`, `role`),
+    // and form.elements has no such collision — so this stays correct without
+    // depending on the named-getter override rule.
+    const fields = form.elements;
+
     const values = {
-      title: form.title.value.trim(),
-      companyId: form.companyId.value,
-      role: form.role.value.trim(),
-      outcome: form.outcome.value,
-      yearOfInterview: form.yearOfInterview.value.trim(),
+      title: fields.title.value.trim(),
+      companyId: fields.companyId.value,
+      role: fields.role.value.trim(),
+      outcome: fields.outcome.value,
+      yearOfInterview: fields.yearOfInterview.value.trim(),
       content: contentField.value.trim(),
     };
 
@@ -209,7 +217,7 @@
       yearOfInterview: values.yearOfInterview || null,
       // The API creates one ExperienceTag row per entry, so drop blanks that a
       // trailing comma would otherwise turn into empty tags.
-      tags: form.tags.value
+      tags: fields.tags.value
         .split(',')
         .map(function (tag) { return tag.trim(); })
         .filter(function (tag) { return tag.length > 0; }),

@@ -89,6 +89,19 @@ const createExperience = asyncHandler(async (req, res) => {
     });
   }
 
+  // Drop blanks before creating tag rows. A trailing comma in the submission
+  // form ("DSA, System Design,") would otherwise become an ExperienceTag with
+  // an empty name, which renders as a blank chip on the feed and as an
+  // unselectable entry in the tag filter.
+  const tagNames = Array.isArray(tags)
+    ? [...new Set(
+        tags
+          .filter((tag) => typeof tag === 'string')
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0)
+      )]
+    : [];
+
   const experience = await prisma.interviewExperience.create({
     data: {
       title,
@@ -99,9 +112,9 @@ const createExperience = asyncHandler(async (req, res) => {
       rounds: rounds || [],
       authorId: req.user.id,
       companyId,
-      tags: tags && tags.length > 0
+      tags: tagNames.length > 0
         ? {
-            create: tags.map((tagName) => ({ name: tagName.trim() })),
+            create: tagNames.map((name) => ({ name })),
           }
         : undefined,
     },
