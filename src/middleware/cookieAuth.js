@@ -80,4 +80,28 @@ const optionalCookieAuth = async (req, res, next) => {
   }
 };
 
-module.exports = { cookieAuth, optionalCookieAuth };
+/**
+ * Admin-only guard for SSR page routes.
+ *
+ * Unlike `isAdmin` (which returns JSON), this renders human-facing
+ * outcomes: unauthenticated visitors are sent to /login, while
+ * logged-in non-admins get a 403 page instead of a silent redirect.
+ *
+ * Must be mounted AFTER `cookieAuth` so `req.user` is populated.
+ *
+ * @example
+ * router.get('/admin', cookieAuth, adminPage, adminDashboard);
+ */
+const adminPage = (req, res, next) => {
+  if (!req.user) {
+    return res.redirect('/login');
+  }
+
+  if (req.user.role !== 'ADMIN') {
+    return res.status(403).render('403', { user: req.user });
+  }
+
+  next();
+};
+
+module.exports = { cookieAuth, optionalCookieAuth, adminPage };

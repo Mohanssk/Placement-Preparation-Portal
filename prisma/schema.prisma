@@ -162,7 +162,10 @@ model Notification {
   message     String
   type        NotifType @default(GENERAL)
   companyName String?
+  // Application/registration deadline for the alert. Surfaced as "Deadline" in the admin UI.
   eventDate   DateTime?
+  // Graduating batch the notice applies to, e.g. "2026". Null means "all batches".
+  targetBatch String?
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -172,6 +175,7 @@ model Notification {
   @@index([authorId])
   @@index([type])
   @@index([createdAt])
+  @@index([targetBatch])
   @@map("notifications")
 }
 

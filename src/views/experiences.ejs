@@ -17,6 +17,17 @@
       <div class="page-header">
         <h1>Interview Experiences</h1>
         <p>Learn from real interview experiences shared by students and alumni</p>
+        <div class="page-header-actions">
+          <% if (typeof user !== 'undefined' && user) { %>
+            <a href="/experiences/new" class="btn btn-primary">
+              <i class="fa-solid fa-plus"></i> Share Your Experience
+            </a>
+          <% } else { %>
+            <a href="/login" class="btn btn-primary">
+              <i class="fa-solid fa-right-to-bracket"></i> Sign in to share yours
+            </a>
+          <% } %>
+        </div>
       </div>
 
       <!-- Filters -->
@@ -115,6 +126,13 @@
           <div class="empty-state-icon"><i class="fa-regular fa-comments"></i></div>
           <h3>No experiences found</h3>
           <p>No interview experiences match your filters. Try adjusting your search criteria.</p>
+          <% if (typeof user !== 'undefined' && user) { %>
+            <div class="page-header-actions" style="justify-content: center;">
+              <a href="/experiences/new" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Be the first to share
+              </a>
+            </div>
+          <% } %>
         </div>
       <% } %>
 

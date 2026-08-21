@@ -1,0 +1,204 @@
+<%- include('../partials/head', { pageTitle: 'Manage Companies' }) %>
+
+<div class="app-layout">
+  <%- include('../partials/header', { user, currentPath: '/admin/companies' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title">Manage Companies</h2>
+      </div>
+      <div class="header-right">
+        <span class="badge badge-red badge-lg">
+          <i class="fa-solid fa-shield-halved"></i> Administrator
+        </span>
+      </div>
+    </header>
+
+    <div class="app-content" data-admin-page="companies">
+      <div class="page-header">
+        <h1>Recruiters &amp; Drives</h1>
+        <p>Add upcoming recruiters and keep their eligibility criteria current</p>
+      </div>
+
+      <% if (typeof loadError !== 'undefined' && loadError) { %>
+        <div class="flash-message error mb-6">
+          <i class="fa-solid fa-circle-exclamation"></i> <%= loadError %>
+        </div>
+      <% } %>
+
+      <!-- ── Add / Edit Company ──────────────── -->
+      <div class="card mb-8" id="company-form-card">
+        <div class="card-header">
+          <h3>
+            <i class="fa-solid fa-plus text-accent" id="company-form-icon"></i>
+            <span id="company-form-heading">Add a Recruiter</span>
+          </h3>
+          <button type="button" class="btn btn-ghost btn-sm is-hidden" id="company-form-cancel">
+            <i class="fa-solid fa-xmark"></i> Cancel edit
+          </button>
+        </div>
+        <div class="card-body">
+          <form id="company-form" novalidate>
+            <!-- Empty = create mode; populated = update mode -->
+            <input type="hidden" id="company-id" name="id" value="">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="company-name" class="form-label">Company Name <span class="required">*</span></label>
+                <input type="text" id="company-name" name="name" class="form-input"
+                       placeholder="e.g. Infosys" required>
+              </div>
+              <div class="form-group">
+                <label for="company-website" class="form-label">Website</label>
+                <input type="url" id="company-website" name="website" class="form-input"
+                       placeholder="https://www.example.com">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="company-description" class="form-label">Description</label>
+              <textarea id="company-description" name="description" class="form-textarea" style="min-height: 90px;"
+                        placeholder="What the company does, its campus hiring history, team locations…"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="company-roles" class="form-label">Roles Hired</label>
+              <input type="text" id="company-roles" name="rolesHired" class="form-input"
+                     placeholder="Systems Engineer, Digital Specialist Engineer">
+              <div class="form-help">Comma-separated.</div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="company-cgpa" class="form-label">Minimum CGPA</label>
+                <input type="number" id="company-cgpa" name="minCGPA" class="form-input"
+                       step="0.01" min="0" max="10" placeholder="e.g. 6.50">
+              </div>
+              <div class="form-group">
+                <label for="company-branches" class="form-label">Allowed Branches</label>
+                <input type="text" id="company-branches" name="allowedBranches" class="form-input"
+                       placeholder="CSE, IT, ECE">
+                <div class="form-help">Comma-separated. Blank means all branches.</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="company-eligibility" class="form-label">Eligibility Criteria</label>
+              <textarea id="company-eligibility" name="eligibilityCriteria" class="form-textarea" style="min-height: 90px;"
+                        placeholder="No active backlogs, max 1 year gap, 60% in 10th and 12th…"></textarea>
+            </div>
+
+            <div class="flex gap-3">
+              <button type="submit" class="btn btn-primary" id="company-submit">
+                <i class="fa-solid fa-floppy-disk"></i> <span id="company-submit-label">Add Company</span>
+              </button>
+              <button type="reset" class="btn btn-ghost" id="company-reset">Clear</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── Existing Companies ──────────────── -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-building text-accent"></i> Listed Companies</h3>
+          <span class="text-sm text-secondary"><%= companies.length %> total</span>
+        </div>
+        <div class="card-body">
+          <% if (companies.length > 0) { %>
+            <div class="table-scroll">
+              <table class="data-table" id="companies-table">
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>Roles</th>
+                    <th>Min. CGPA</th>
+                    <th>Branches</th>
+                    <th>Experiences</th>
+                    <th class="col-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% companies.forEach(company => { %>
+                    <%
+                      const roles = Array.isArray(company.rolesHired) ? company.rolesHired : [];
+                      const branches = Array.isArray(company.allowedBranches) ? company.allowedBranches : [];
+                      const cgpa = company.minCGPA !== null && company.minCGPA !== undefined
+                        ? Number(company.minCGPA).toFixed(2)
+                        : '';
+                    %>
+                    <tr data-company-row="<%= company.id %>">
+                      <td>
+                        <div class="font-medium"><%= company.name %></div>
+                        <% if (company.website) { %>
+                          <a href="<%= company.website %>" target="_blank" rel="noopener noreferrer"
+                             class="text-xs">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Website
+                          </a>
+                        <% } %>
+                      </td>
+                      <td class="text-sm">
+                        <% if (roles.length) { %>
+                          <%= roles.slice(0, 2).join(', ') %><%= roles.length > 2 ? ` +${roles.length - 2}` : '' %>
+                        <% } else { %>
+                          <span class="text-tertiary">—</span>
+                        <% } %>
+                      </td>
+                      <td class="text-sm">
+                        <% if (cgpa) { %>
+                          <span class="badge badge-blue"><%= cgpa %></span>
+                        <% } else { %>
+                          <span class="text-tertiary">Any</span>
+                        <% } %>
+                      </td>
+                      <td class="text-sm">
+                        <% if (branches.length) { %>
+                          <%= branches.join(', ') %>
+                        <% } else { %>
+                          <span class="text-tertiary">All</span>
+                        <% } %>
+                      </td>
+                      <td class="text-sm text-secondary"><%= company._count ? company._count.experiences : 0 %></td>
+                      <td class="col-actions">
+                        <div class="table-actions">
+                          <button type="button"
+                                  class="btn btn-secondary btn-sm js-edit-company"
+                                  data-id="<%= company.id %>"
+                                  data-name="<%= company.name %>"
+                                  data-website="<%= company.website || '' %>"
+                                  data-description="<%= company.description || '' %>"
+                                  data-roles="<%= roles.join(', ') %>"
+                                  data-cgpa="<%= cgpa %>"
+                                  data-branches="<%= branches.join(', ') %>"
+                                  data-eligibility="<%= company.eligibilityCriteria || '' %>">
+                            <i class="fa-solid fa-pen"></i> Edit
+                          </button>
+                          <button type="button"
+                                  class="btn btn-danger btn-sm js-delete-company"
+                                  data-id="<%= company.id %>"
+                                  data-name="<%= company.name %>"
+                                  data-experiences="<%= company._count ? company._count.experiences : 0 %>">
+                            <i class="fa-solid fa-trash"></i> Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="empty-state" style="padding: var(--space-10) 0;">
+              <div class="empty-state-icon"><i class="fa-regular fa-building"></i></div>
+              <h3>No companies listed</h3>
+              <p>Add your first recruiter using the form above.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+<%- include('../partials/footer') %>

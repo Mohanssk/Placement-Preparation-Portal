@@ -1,0 +1,32 @@
+<%- include('partials/head', { pageTitle: 'Access Denied' }) %>
+
+<div class="app-layout">
+  <%- include('partials/header', { user: typeof user !== 'undefined' ? user : null, currentPath: '' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title">Access Denied</h2>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <div class="empty-state" style="padding-top: var(--space-20);">
+        <div class="empty-state-icon" style="color: var(--danger-500);">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3>403 &mdash; Administrator access required</h3>
+        <p>
+          This area is restricted to the placement cell. Your account is signed in as
+          <strong><%= typeof user !== 'undefined' && user ? user.role : 'a student' %></strong>,
+          which does not have administrator privileges.
+        </p>
+        <a href="/dashboard" class="btn btn-primary">
+          <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+
+<%- include('partials/footer') %>

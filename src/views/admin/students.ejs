@@ -1,0 +1,146 @@
+<%- include('../partials/head', { pageTitle: 'Student Data' }) %>
+
+<div class="app-layout">
+  <%- include('../partials/header', { user, currentPath: '/admin/students' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title">Student Data</h2>
+      </div>
+      <div class="header-right">
+        <span class="badge badge-red badge-lg">
+          <i class="fa-solid fa-shield-halved"></i> Administrator
+        </span>
+      </div>
+    </header>
+
+    <div class="app-content" data-admin-page="students">
+      <div class="page-header">
+        <h1>Registered Students</h1>
+        <p>The placement cell roster &mdash; <%= total %> account<%= total === 1 ? '' : 's' %> matching the current filters</p>
+      </div>
+
+      <% if (typeof loadError !== 'undefined' && loadError) { %>
+        <div class="flash-message error mb-6">
+          <i class="fa-solid fa-circle-exclamation"></i> <%= loadError %>
+        </div>
+      <% } %>
+
+      <!-- ── Filters ─────────────────────────── -->
+      <div class="filter-bar mb-6">
+        <form action="/admin/students" method="GET"
+              style="display: flex; gap: var(--space-3); flex-wrap: wrap; width: 100%; align-items: flex-end;">
+          <div class="form-group" style="flex: 2; min-width: 220px; margin-bottom: 0;">
+            <label for="filter-search" class="form-label">Search</label>
+            <input type="text" id="filter-search" name="search" class="form-input"
+                   placeholder="Name or email" value="<%= filters.search %>">
+          </div>
+          <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+            <label for="filter-branch" class="form-label">Branch</label>
+            <select id="filter-branch" name="branch" class="form-select">
+              <option value="">All branches</option>
+              <% branches.forEach(b => { %>
+                <option value="<%= b %>" <%= filters.branch === b ? 'selected' : '' %>><%= b %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group" style="flex: 1; min-width: 130px; margin-bottom: 0;">
+            <label for="filter-year" class="form-label">Batch</label>
+            <input type="number" id="filter-year" name="graduationYear" class="form-input"
+                   placeholder="e.g. 2026" min="2000" max="2040" value="<%= filters.graduationYear %>">
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-filter"></i> Apply
+          </button>
+          <% if (filters.search || filters.branch || filters.graduationYear) { %>
+            <a href="/admin/students" class="btn btn-ghost">Reset</a>
+          <% } %>
+        </form>
+      </div>
+
+      <!-- ── Roster ──────────────────────────── -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-users text-accent"></i> Roster</h3>
+          <span class="text-sm text-secondary"><%= students.length %> shown</span>
+        </div>
+        <div class="card-body">
+          <% if (students.length > 0) { %>
+            <div class="table-scroll">
+              <table class="data-table" id="students-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>College</th>
+                    <th>Branch</th>
+                    <th>Batch</th>
+                    <th>Role</th>
+                    <th>Contributions</th>
+                    <th>Registered</th>
+                    <th class="col-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% students.forEach(student => { %>
+                    <tr data-student-row="<%= student.id %>">
+                      <td>
+                        <div class="font-medium"><%= student.name %></div>
+                        <div class="text-xs text-tertiary"><%= student.email %></div>
+                      </td>
+                      <td class="text-sm"><%= student.college || '—' %></td>
+                      <td class="text-sm">
+                        <% if (student.branch) { %>
+                          <span class="badge badge-gray"><%= student.branch %></span>
+                        <% } else { %>
+                          <span class="text-tertiary">—</span>
+                        <% } %>
+                      </td>
+                      <td class="text-sm"><%= student.graduationYear || '—' %></td>
+                      <td>
+                        <span class="badge <%= student.role === 'ALUMNI' ? 'badge-amber' : 'badge-blue' %>" data-role-badge>
+                          <%= student.role %>
+                        </span>
+                      </td>
+                      <td class="text-sm text-secondary">
+                        <%= student._count.experiences %> experience<%= student._count.experiences === 1 ? '' : 's' %>
+                      </td>
+                      <td class="text-sm text-secondary">
+                        <%= new Date(student.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                      </td>
+                      <td class="col-actions">
+                        <select class="form-select form-select-sm js-change-role"
+                                data-id="<%= student.id %>"
+                                data-name="<%= student.name %>"
+                                data-current="<%= student.role %>"
+                                aria-label="Change role for <%= student.name %>">
+                          <option value="STUDENT" <%= student.role === 'STUDENT' ? 'selected' : '' %>>Student</option>
+                          <option value="ALUMNI" <%= student.role === 'ALUMNI' ? 'selected' : '' %>>Alumni</option>
+                          <option value="ADMIN" <%= student.role === 'ADMIN' ? 'selected' : '' %>>Admin</option>
+                        </select>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="empty-state" style="padding: var(--space-10) 0;">
+              <div class="empty-state-icon"><i class="fa-regular fa-user"></i></div>
+              <h3>No students match these filters</h3>
+              <p>Try clearing the branch or batch filter.</p>
+              <a href="/admin/students" class="btn btn-secondary btn-sm">Reset filters</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <p class="text-xs text-tertiary mt-4">
+        Promoting a student to <strong>Admin</strong> grants full access to this panel. You cannot change your own
+        role, and the last remaining admin cannot be demoted.
+      </p>
+
+<%- include('../partials/footer') %>

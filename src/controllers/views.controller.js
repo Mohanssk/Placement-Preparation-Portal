@@ -5,6 +5,21 @@
 // All data bindings match the Prisma schema exactly.
 
 const prisma = require('../config/database');
+const { getDashboardStats } = require('./admin.controller');
+
+// Fallback shape for the admin dashboard when a stat query fails, so the
+// template never has to guard every field.
+const EMPTY_ADMIN_STATS = {
+  totalStudents: 0,
+  totalAlumni: 0,
+  totalAdmins: 0,
+  totalCompanies: 0,
+  activeDrives: 0,
+  totalNotices: 0,
+  totalExperiences: 0,
+  totalScans: 0,
+  averageAtsScore: null,
+};
 
 /**
  * GET /
@@ -268,6 +283,40 @@ const experiencesList = async (req, res) => {
 };
 
 /**
+ * GET /experiences/new
+ * Submission form for a new interview experience.
+ *
+ * Mounted before /experiences/:id in views.routes.js — otherwise the
+ * param route matches "new" and tries to look it up as an experience id.
+ *
+ * The company list is a hard requirement, not decoration: the form posts a
+ * `companyId` and InterviewExperience.companyId is a non-null foreign key,
+ * so with no companies on record there is nothing valid to submit. That case
+ * renders as a real message instead of an empty dropdown that 400s on submit.
+ */
+const newExperiencePage = async (req, res) => {
+  try {
+    const companies = await prisma.company.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true },
+    });
+
+    res.render('add-experience', {
+      user: req.user,
+      companies,
+      loadError: null,
+    });
+  } catch (error) {
+    console.error('New experience page error:', error);
+    res.render('add-experience', {
+      user: req.user,
+      companies: [],
+      loadError: 'Could not load the company list. Please refresh and try again.',
+    });
+  }
+};
+
+/**
  * GET /experiences/:id
  */
 const experienceDetail = async (req, res) => {
@@ -345,6 +394,189 @@ const roadmapPage = (req, res) => {
   });
 };
 
+// ============================================
+// Admin Pages
+// ============================================
+// All of these sit behind `cookieAuth` + `adminPage` in views.routes.js.
+// Data is fetched server-side for first paint; mutations go through
+// /api/admin/* from public/js/admin.js.
+
+/**
+ * GET /admin
+ * Admin command center — high-level portal stats.
+ */
+const adminDashboard = async (req, res) => {
+  try {
+    const [stats, recentNotices, recentStudents] = await Promise.all([
+      getDashboardStats(),
+      prisma.notification.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        include: { author: { select: { id: true, name: true } } },
+      }),
+      prisma.user.findMany({
+        where: { role: { in: ['STUDENT', 'ALUMNI'] } },
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          branch: true,
+          graduationYear: true,
+          createdAt: true,
+        },
+      }),
+    ]);
+
+    res.render('admin/dashboard', {
+      user: req.user,
+      currentPath: '/admin',
+      stats,
+      recentNotices,
+      recentStudents,
+    });
+  } catch (error) {
+    console.error('Admin dashboard error:', error);
+    res.render('admin/dashboard', {
+      user: req.user,
+      currentPath: '/admin',
+      stats: EMPTY_ADMIN_STATS,
+      recentNotices: [],
+      recentStudents: [],
+      loadError: 'Some dashboard data could not be loaded.',
+    });
+  }
+};
+
+/**
+ * GET /admin/notices
+ * Post new announcements and remove outdated ones.
+ */
+const adminNotices = async (req, res) => {
+  try {
+    const notices = await prisma.notification.findMany({
+      take: 100,
+      orderBy: { createdAt: 'desc' },
+      include: { author: { select: { id: true, name: true } } },
+    });
+
+    res.render('admin/manage-notices', {
+      user: req.user,
+      currentPath: '/admin/notices',
+      notices,
+    });
+  } catch (error) {
+    console.error('Admin notices error:', error);
+    res.render('admin/manage-notices', {
+      user: req.user,
+      currentPath: '/admin/notices',
+      notices: [],
+      loadError: 'Could not load the notice list.',
+    });
+  }
+};
+
+/**
+ * GET /admin/companies
+ * Add upcoming recruiters and edit existing company profiles.
+ */
+const adminCompanies = async (req, res) => {
+  try {
+    const companies = await prisma.company.findMany({
+      take: 200,
+      orderBy: { name: 'asc' },
+      include: { _count: { select: { experiences: true } } },
+    });
+
+    res.render('admin/manage-companies', {
+      user: req.user,
+      currentPath: '/admin/companies',
+      companies,
+    });
+  } catch (error) {
+    console.error('Admin companies error:', error);
+    res.render('admin/manage-companies', {
+      user: req.user,
+      currentPath: '/admin/companies',
+      companies: [],
+      loadError: 'Could not load the company list.',
+    });
+  }
+};
+
+/**
+ * GET /admin/students
+ * Registered student roster with filters.
+ */
+const adminStudents = async (req, res) => {
+  const search = req.query.search || '';
+  const branch = req.query.branch || '';
+  const graduationYear = req.query.graduationYear || '';
+
+  try {
+    const where = { role: { in: ['STUDENT', 'ALUMNI'] } };
+    if (branch) where.branch = { contains: branch, mode: 'insensitive' };
+    if (graduationYear) {
+      const year = parseInt(graduationYear, 10);
+      if (!Number.isNaN(year)) where.graduationYear = year;
+    }
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [students, total, branches] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        take: 200,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          college: true,
+          branch: true,
+          graduationYear: true,
+          createdAt: true,
+          _count: { select: { experiences: true } },
+        },
+      }),
+      prisma.user.count({ where }),
+      // Branch values already in use, for the filter dropdown.
+      prisma.user.findMany({
+        where: { role: { in: ['STUDENT', 'ALUMNI'] }, branch: { not: null } },
+        distinct: ['branch'],
+        select: { branch: true },
+        orderBy: { branch: 'asc' },
+      }),
+    ]);
+
+    res.render('admin/students', {
+      user: req.user,
+      currentPath: '/admin/students',
+      students,
+      total,
+      branches: branches.map((b) => b.branch).filter(Boolean),
+      filters: { search, branch, graduationYear },
+    });
+  } catch (error) {
+    console.error('Admin students error:', error);
+    res.render('admin/students', {
+      user: req.user,
+      currentPath: '/admin/students',
+      students: [],
+      total: 0,
+      branches: [],
+      filters: { search, branch, graduationYear },
+      loadError: 'Could not load the student roster.',
+    });
+  }
+};
+
 module.exports = {
   landing,
   loginPage,
@@ -354,8 +586,13 @@ module.exports = {
   companyDetail,
   prepHub,
   experiencesList,
+  newExperiencePage,
   experienceDetail,
   atsScanner,
   roadmapPage,
   logout,
+  adminDashboard,
+  adminNotices,
+  adminCompanies,
+  adminStudents,
 };

@@ -106,6 +106,12 @@
                         <% if (notif.companyName) { %>
                           <span><i class="fa-solid fa-building"></i> <%= notif.companyName %></span>
                         <% } %>
+                        <% if (notif.targetBatch) { %>
+                          <span><i class="fa-solid fa-users"></i> Batch <%= notif.targetBatch %></span>
+                        <% } %>
+                        <% if (notif.eventDate) { %>
+                          <span><i class="fa-solid fa-hourglass-half"></i> Due <%= new Date(notif.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) %></span>
+                        <% } %>
                       </div>
                     </div>
                   </div>

@@ -1,0 +1,180 @@
+<%- include('../partials/head', { pageTitle: 'Manage Notices' }) %>
+
+<div class="app-layout">
+  <%- include('../partials/header', { user, currentPath: '/admin/notices' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title">Manage Notices</h2>
+      </div>
+      <div class="header-right">
+        <span class="badge badge-red badge-lg">
+          <i class="fa-solid fa-shield-halved"></i> Administrator
+        </span>
+      </div>
+    </header>
+
+    <div class="app-content" data-admin-page="notices">
+      <div class="page-header">
+        <h1>Notice Board</h1>
+        <p>Publish placement alerts and remove announcements that have passed</p>
+      </div>
+
+      <% if (typeof loadError !== 'undefined' && loadError) { %>
+        <div class="flash-message error mb-6">
+          <i class="fa-solid fa-circle-exclamation"></i> <%= loadError %>
+        </div>
+      <% } %>
+
+      <!-- ── Post a New Notice ───────────────── -->
+      <div class="card mb-8">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-plus text-accent"></i> Post a New Alert</h3>
+        </div>
+        <div class="card-body">
+          <form id="notice-form" novalidate>
+            <div class="form-group">
+              <label for="notice-title" class="form-label">Title <span class="required">*</span></label>
+              <input type="text" id="notice-title" name="title" class="form-input" maxlength="200"
+                     placeholder="e.g. Infosys On-Campus Drive — Registrations Open" required>
+            </div>
+
+            <div class="form-group">
+              <label for="notice-message" class="form-label">Body <span class="required">*</span></label>
+              <textarea id="notice-message" name="message" class="form-textarea"
+                        placeholder="Full details students need: eligibility, process, venue, what to bring…" required></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="notice-type" class="form-label">Category</label>
+                <select id="notice-type" name="type" class="form-select">
+                  <option value="PLACEMENT_DRIVE">Placement Drive</option>
+                  <option value="DEADLINE">Deadline</option>
+                  <option value="GENERAL" selected>General</option>
+                  <option value="URGENT">Urgent</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="notice-company" class="form-label">Company</label>
+                <input type="text" id="notice-company" name="companyName" class="form-input"
+                       placeholder="e.g. Infosys">
+                <div class="form-help">Optional — shown as a tag on the notice.</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="notice-deadline" class="form-label">Deadline</label>
+                <input type="date" id="notice-deadline" name="eventDate" class="form-input">
+                <div class="form-help">A notice with a future deadline counts as an active drive.</div>
+              </div>
+              <div class="form-group">
+                <label for="notice-batch" class="form-label">Target Batch</label>
+                <input type="text" id="notice-batch" name="targetBatch" class="form-input"
+                       placeholder="e.g. 2026" pattern="[0-9]{4}([,/\-][0-9]{4})*">
+                <div class="form-help">Graduation year. Leave blank to target all batches.</div>
+              </div>
+            </div>
+
+            <div class="flex gap-3">
+              <button type="submit" class="btn btn-primary" id="notice-submit">
+                <i class="fa-solid fa-paper-plane"></i> Publish Notice
+              </button>
+              <button type="reset" class="btn btn-ghost">Clear</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── Existing Notices ────────────────── -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-list text-accent"></i> Published Notices</h3>
+          <span class="text-sm text-secondary" id="notice-count"><%= notices.length %> total</span>
+        </div>
+        <div class="card-body">
+          <% if (notices.length > 0) { %>
+            <div class="table-scroll">
+              <table class="data-table" id="notices-table">
+                <thead>
+                  <tr>
+                    <th>Notice</th>
+                    <th>Category</th>
+                    <th>Batch</th>
+                    <th>Deadline</th>
+                    <th>Posted</th>
+                    <th class="col-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% notices.forEach(notice => { %>
+                    <tr data-notice-row="<%= notice.id %>">
+                      <td>
+                        <div class="font-medium"><%= notice.title %></div>
+                        <div class="text-xs text-tertiary cell-truncate">
+                          <%= notice.message.length > 90 ? notice.message.substring(0, 90) + '…' : notice.message %>
+                        </div>
+                        <% if (notice.companyName) { %>
+                          <div class="text-xs text-secondary mt-1">
+                            <i class="fa-solid fa-building"></i> <%= notice.companyName %>
+                          </div>
+                        <% } %>
+                      </td>
+                      <td>
+                        <span class="badge <%= notice.type === 'URGENT' ? 'badge-red' : notice.type === 'PLACEMENT_DRIVE' ? 'badge-blue' : notice.type === 'DEADLINE' ? 'badge-amber' : 'badge-gray' %>">
+                          <%= notice.type.replace('_', ' ') %>
+                        </span>
+                      </td>
+                      <td>
+                        <% if (notice.targetBatch) { %>
+                          <span class="badge badge-gray"><%= notice.targetBatch %></span>
+                        <% } else { %>
+                          <span class="text-tertiary text-sm">All</span>
+                        <% } %>
+                      </td>
+                      <td class="text-sm">
+                        <% if (notice.eventDate) { %>
+                          <% const isPast = new Date(notice.eventDate) < new Date(); %>
+                          <span class="<%= isPast ? 'text-tertiary' : 'text-primary font-medium' %>">
+                            <%= new Date(notice.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                          </span>
+                          <% if (isPast) { %>
+                            <div class="text-xs text-danger">Expired</div>
+                          <% } %>
+                        <% } else { %>
+                          <span class="text-tertiary">—</span>
+                        <% } %>
+                      </td>
+                      <td class="text-sm text-secondary">
+                        <%= new Date(notice.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                        <div class="text-xs text-tertiary">by <%= notice.author ? notice.author.name : 'Unknown' %></div>
+                      </td>
+                      <td class="col-actions">
+                        <button type="button"
+                                class="btn btn-danger btn-sm js-delete-notice"
+                                data-id="<%= notice.id %>"
+                                data-title="<%= notice.title %>">
+                          <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="empty-state" style="padding: var(--space-10) 0;">
+              <div class="empty-state-icon"><i class="fa-regular fa-bell-slash"></i></div>
+              <h3>No notices published</h3>
+              <p>Use the form above to post the first placement alert.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+<%- include('../partials/footer') %>

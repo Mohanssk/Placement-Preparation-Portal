@@ -1,0 +1,224 @@
+<%- include('partials/head', { pageTitle: 'Share Your Experience' }) %>
+
+<div class="app-layout">
+  <%- include('partials/header', { user, currentPath: '/experiences' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title">Share Your Experience</h2>
+      </div>
+    </header>
+
+    <div class="app-content" data-page="new-experience">
+      <div class="page-header">
+        <h1>Share Your Interview Experience</h1>
+        <p>Your writeup helps the next batch walk in prepared. Be specific about the rounds, the questions, and what you'd do differently.</p>
+      </div>
+
+      <% if (loadError) { %>
+        <div class="flash-message error mb-6">
+          <i class="fa-solid fa-circle-exclamation"></i> <%= loadError %>
+        </div>
+      <% } %>
+
+      <% if (companies.length === 0) { %>
+        <!--
+          No Company rows means no valid companyId to post, and companyId is a
+          required foreign key. Showing the form here would guarantee a 400 on
+          submit, so explain the block instead.
+        -->
+        <div class="card">
+          <div class="card-body">
+            <div class="empty-state" style="padding: var(--space-10) 0;">
+              <div class="empty-state-icon"><i class="fa-regular fa-building"></i></div>
+              <h3>No companies on record yet</h3>
+              <p>
+                Experiences are filed under a recruiter, and none have been added to the
+                portal yet. Ask an administrator to add the company you interviewed with,
+                then come back to post your writeup.
+              </p>
+              <div class="page-header-actions" style="justify-content: center;">
+                <a href="/experiences" class="btn btn-ghost">
+                  <i class="fa-solid fa-arrow-left"></i> Back to Experiences
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% } else { %>
+
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-pen-to-square text-accent"></i> Experience Details</h3>
+        </div>
+        <div class="card-body">
+
+          <!--
+            aria-live so a screen reader announces the failure when the fetch
+            comes back; hidden until experience-form.js has something to say.
+          -->
+          <div
+            class="flash-message error is-hidden mb-6"
+            id="experience-form-error"
+            role="alert"
+            aria-live="assertive"
+          >
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="experience-form-error-text"></span>
+          </div>
+
+          <!--
+            No action/method: experience-form.js intercepts submit and posts JSON
+            to /api/experiences. novalidate hands validation to our own code so
+            errors render in the portal's styling, not the browser's tooltips.
+          -->
+          <form id="experience-form" novalidate>
+
+            <div class="form-group">
+              <label for="exp-title" class="form-label">
+                Headline <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="text"
+                id="exp-title"
+                name="title"
+                class="form-input"
+                maxlength="200"
+                placeholder="e.g. Infosys SDE — 3 rounds, selected"
+                autocomplete="off"
+                required
+                aria-describedby="exp-title-help"
+              >
+              <div class="form-help" id="exp-title-help">
+                This is the clickable title on the experiences feed. Keep it scannable.
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="exp-company" class="form-label">
+                  Company <span class="required" aria-hidden="true">*</span>
+                </label>
+                <select
+                  id="exp-company"
+                  name="companyId"
+                  class="form-select"
+                  required
+                  aria-describedby="exp-company-help"
+                >
+                  <option value="">Select a company…</option>
+                  <% companies.forEach(company => { %>
+                    <option value="<%= company.id %>"><%= company.name %></option>
+                  <% }) %>
+                </select>
+                <div class="form-help" id="exp-company-help">
+                  Not listed? Ask an admin to add the recruiter first.
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="exp-role" class="form-label">Role applied for</label>
+                <input
+                  type="text"
+                  id="exp-role"
+                  name="role"
+                  class="form-input"
+                  maxlength="100"
+                  placeholder="e.g. Software Development Engineer"
+                  autocomplete="off"
+                >
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="exp-outcome" class="form-label">
+                  Outcome <span class="required" aria-hidden="true">*</span>
+                </label>
+                <select id="exp-outcome" name="outcome" class="form-select" required>
+                  <option value="SELECTED">Selected</option>
+                  <option value="REJECTED">Rejected</option>
+                  <!--
+                    The Outcome enum has no WAITLISTED member. PENDING is the
+                    "no final answer yet" state, so it carries the waitlist
+                    label here rather than forcing a schema migration.
+                  -->
+                  <option value="PENDING" selected>Waitlisted / Awaiting result</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="exp-year" class="form-label">Year of interview</label>
+                <input
+                  type="number"
+                  id="exp-year"
+                  name="yearOfInterview"
+                  class="form-input"
+                  min="2000"
+                  max="2100"
+                  step="1"
+                  placeholder="e.g. 2026"
+                  inputmode="numeric"
+                >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="exp-content" class="form-label">
+                Interview details &amp; rounds <span class="required" aria-hidden="true">*</span>
+              </label>
+              <textarea
+                id="exp-content"
+                name="content"
+                class="form-textarea"
+                style="min-height: 280px;"
+                placeholder="Walk through it round by round.&#10;&#10;Round 1 — Online Assessment&#10;What the questions covered, how long you had, the platform used.&#10;&#10;Round 2 — Technical&#10;Questions asked, what the interviewer probed on, how you answered.&#10;&#10;Round 3 — HR&#10;What they asked and what they seemed to be looking for.&#10;&#10;What I'd do differently&#10;The advice you wish you'd had going in."
+                required
+                aria-describedby="exp-content-help"
+              ></textarea>
+              <div class="form-help" id="exp-content-help">
+                At least 50 characters. The more concrete you are, the more useful this is —
+                <span id="exp-content-count" aria-live="polite">0 characters</span>.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="exp-tags" class="form-label">Tags</label>
+              <input
+                type="text"
+                id="exp-tags"
+                name="tags"
+                class="form-input"
+                placeholder="e.g. DSA, System Design, HR Round"
+                autocomplete="off"
+                aria-describedby="exp-tags-help"
+              >
+              <div class="form-help" id="exp-tags-help">
+                Optional. Comma-separated — these become filter chips on the feed.
+              </div>
+            </div>
+
+            <!--
+              Submit first in DOM order so Tab reaches the primary action before
+              the escape hatch, and so Enter in a text field triggers Post.
+            -->
+            <div class="flex gap-3" style="margin-top: var(--space-6);">
+              <button type="submit" class="btn btn-primary" id="experience-submit">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span id="experience-submit-label">Post Experience</span>
+              </button>
+              <a href="/experiences" class="btn btn-ghost" id="experience-cancel">
+                Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <% } %>
+
+<%- include('partials/footer', { currentPath: '/experiences/new' }) %>

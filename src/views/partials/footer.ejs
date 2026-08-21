@@ -60,6 +60,12 @@
   <% if (typeof currentPath !== 'undefined' && currentPath === '/roadmap') { %>
   <script src="/js/roadmap.js?v=<%= Date.now() %>"></script>
   <% } %>
+  <% if (typeof currentPath !== 'undefined' && currentPath === '/experiences/new') { %>
+  <script src="/js/experience-form.js?v=<%= Date.now() %>"></script>
+  <% } %>
+  <% if (typeof currentPath !== 'undefined' && currentPath.startsWith('/admin')) { %>
+  <script src="/js/admin.js?v=<%= Date.now() %>"></script>
+  <% } %>
 </body>
 </html>
 

@@ -22,6 +22,7 @@ const atsRoutes = require('./routes/ats.routes');
 const viewRoutes = require('./routes/views.routes');
 const chatRoutes = require('./routes/chat.routes');
 const roadmapRoutes = require('./routes/roadmap.routes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -100,6 +101,9 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/ats', atsRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/roadmap', roadmapRoutes);
+
+// Admin surface — every route inside is gated by `isAdmin`.
+app.use('/api/admin', adminRoutes);
 
 // ── View Routes (SSR Pages) ───────────────────
 app.use('/', viewRoutes);

@@ -11,6 +11,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio",
+    "seed:admin": "node scripts/seedAdmin.js",
     "vercel-build": "prisma generate",
     "postinstall": "prisma generate"
   },

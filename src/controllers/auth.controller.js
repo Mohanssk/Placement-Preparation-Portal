@@ -27,13 +27,18 @@ const register = asyncHandler(async (req, res) => {
   const salt = await bcrypt.genSalt(12);
   const hashedPassword = await bcrypt.hash(password, salt);
 
+  // Self-signup can only produce STUDENT or ALUMNI. Even if a crafted request
+  // slips `role: 'ADMIN'` past validation, it is discarded here — admin rights
+  // come only from another admin or scripts/seedAdmin.js.
+  const requestedRole = role === 'ALUMNI' ? 'ALUMNI' : 'STUDENT';
+
   // Create user
   const user = await prisma.user.create({
     data: {
       name,
       email: email.toLowerCase().trim(),
       password: hashedPassword,
-      role: role || 'STUDENT',
+      role: requestedRole,
       college,
       branch,
       graduationYear: graduationYear ? parseInt(graduationYear, 10) : null,

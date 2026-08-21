@@ -1,0 +1,214 @@
+<%- include('../partials/head', { pageTitle: 'Admin Dashboard' }) %>
+
+<div class="app-layout">
+  <%- include('../partials/header', { user, currentPath: '/admin' }) %>
+
+  <main class="app-main">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="header-title">Admin Panel</h2>
+      </div>
+      <div class="header-right">
+        <span class="badge badge-red badge-lg">
+          <i class="fa-solid fa-shield-halved"></i> Administrator
+        </span>
+      </div>
+    </header>
+
+    <div class="app-content" data-admin-page="dashboard">
+      <div class="page-header">
+        <h1>Command Center</h1>
+        <p>Portal-wide overview for the placement cell</p>
+      </div>
+
+      <% if (typeof loadError !== 'undefined' && loadError) { %>
+        <div class="flash-message error mb-6">
+          <i class="fa-solid fa-circle-exclamation"></i> <%= loadError %>
+        </div>
+      <% } %>
+
+      <!-- Primary Stats -->
+      <div class="grid mb-8" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-6);">
+        <div class="stat-card">
+          <div class="stat-card-icon blue">
+            <i class="fa-solid fa-user-graduate"></i>
+          </div>
+          <div>
+            <div class="stat-card-value"><%= stats.totalStudents %></div>
+            <div class="stat-card-label">Total Students</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon green">
+            <i class="fa-solid fa-bullhorn"></i>
+          </div>
+          <div>
+            <div class="stat-card-value"><%= stats.activeDrives %></div>
+            <div class="stat-card-label">Active Drives</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon amber">
+            <i class="fa-solid fa-building"></i>
+          </div>
+          <div>
+            <div class="stat-card-value"><%= stats.totalCompanies %></div>
+            <div class="stat-card-label">Recruiters Listed</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon red">
+            <i class="fa-solid fa-user-tie"></i>
+          </div>
+          <div>
+            <div class="stat-card-value"><%= stats.totalAlumni %></div>
+            <div class="stat-card-label">Alumni</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary Stats -->
+      <div class="admin-substats mb-8">
+        <div class="admin-substat">
+          <div class="label">Notices Published</div>
+          <div class="value"><%= stats.totalNotices %></div>
+        </div>
+        <div class="admin-substat">
+          <div class="label">Interview Experiences</div>
+          <div class="value"><%= stats.totalExperiences %></div>
+        </div>
+        <div class="admin-substat">
+          <div class="label">Resume Scans Run</div>
+          <div class="value"><%= stats.totalScans %></div>
+        </div>
+        <div class="admin-substat">
+          <div class="label">Portal Avg. ATS Score</div>
+          <div class="value">
+            <% if (stats.averageAtsScore === null) { %>
+              <span class="text-tertiary">&mdash;</span>
+            <% } else { %>
+              <%= stats.averageAtsScore %><span class="unit">%</span>
+            <% } %>
+          </div>
+        </div>
+        <div class="admin-substat">
+          <div class="label">Administrators</div>
+          <div class="value"><%= stats.totalAdmins %></div>
+        </div>
+      </div>
+
+      <!-- Management Shortcuts -->
+      <div class="grid mb-8" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-6);">
+        <a href="/admin/notices" class="admin-action-card">
+          <div class="admin-action-icon blue"><i class="fa-solid fa-bullhorn"></i></div>
+          <h3>Manage Notices</h3>
+          <p>Publish placement alerts and clear outdated announcements.</p>
+        </a>
+        <a href="/admin/companies" class="admin-action-card">
+          <div class="admin-action-icon amber"><i class="fa-solid fa-briefcase"></i></div>
+          <h3>Manage Companies</h3>
+          <p>Add upcoming recruiters and maintain eligibility criteria.</p>
+        </a>
+        <a href="/admin/students" class="admin-action-card">
+          <div class="admin-action-icon green"><i class="fa-solid fa-users"></i></div>
+          <h3>Student Data</h3>
+          <p>Browse the registered roster by branch and graduating batch.</p>
+        </a>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: var(--space-6);">
+        <!-- Recent Notices -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-bullhorn text-accent"></i> Latest Notices</h3>
+            <a href="/admin/notices" class="text-sm">Manage &rarr;</a>
+          </div>
+          <div class="card-body">
+            <% if (recentNotices.length > 0) { %>
+              <div class="flex flex-col gap-3">
+                <% recentNotices.forEach(notice => { %>
+                  <div class="notification-card">
+                    <div class="notification-card-icon <%= notice.type === 'PLACEMENT_DRIVE' ? 'placement' : notice.type === 'DEADLINE' ? 'deadline' : notice.type === 'URGENT' ? 'urgent' : 'general' %>">
+                      <i class="fa-solid <%= notice.type === 'PLACEMENT_DRIVE' ? 'fa-briefcase' : notice.type === 'DEADLINE' ? 'fa-clock' : notice.type === 'URGENT' ? 'fa-exclamation' : 'fa-info' %>"></i>
+                    </div>
+                    <div class="notification-card-body">
+                      <h4><%= notice.title %></h4>
+                      <div class="notification-card-meta">
+                        <span><i class="fa-regular fa-clock"></i> <%= new Date(notice.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) %></span>
+                        <% if (notice.targetBatch) { %>
+                          <span><i class="fa-solid fa-users"></i> Batch <%= notice.targetBatch %></span>
+                        <% } %>
+                        <% if (notice.eventDate) { %>
+                          <span><i class="fa-solid fa-hourglass-half"></i> Due <%= new Date(notice.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) %></span>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <div class="empty-state" style="padding: var(--space-8) 0;">
+                <div class="empty-state-icon"><i class="fa-regular fa-bell-slash"></i></div>
+                <h3>No notices yet</h3>
+                <p>Publish your first placement alert to get started.</p>
+                <a href="/admin/notices" class="btn btn-primary btn-sm">
+                  <i class="fa-solid fa-plus"></i> Post a Notice
+                </a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Recent Registrations -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-user-plus text-accent"></i> Newest Registrations</h3>
+            <a href="/admin/students" class="text-sm">View all &rarr;</a>
+          </div>
+          <div class="card-body">
+            <% if (recentStudents.length > 0) { %>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Branch</th>
+                      <th>Batch</th>
+                      <th>Joined</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% recentStudents.forEach(student => { %>
+                      <tr>
+                        <td>
+                          <div class="font-medium"><%= student.name %></div>
+                          <div class="text-xs text-tertiary"><%= student.email %></div>
+                        </td>
+                        <td><%= student.branch || '—' %></td>
+                        <td><%= student.graduationYear || '—' %></td>
+                        <td class="text-sm text-secondary">
+                          <%= new Date(student.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } else { %>
+              <div class="empty-state" style="padding: var(--space-8) 0;">
+                <div class="empty-state-icon"><i class="fa-regular fa-user"></i></div>
+                <h3>No registrations yet</h3>
+                <p>Students will appear here as they sign up.</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+<%- include('../partials/footer') %>

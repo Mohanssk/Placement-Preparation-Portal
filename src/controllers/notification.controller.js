@@ -64,7 +64,7 @@ const getNotification = asyncHandler(async (req, res) => {
  * Create a placement alert (Admin only).
  */
 const createNotification = asyncHandler(async (req, res) => {
-  const { title, message, type, companyName, eventDate } = req.body;
+  const { title, message, type, companyName, eventDate, targetBatch } = req.body;
 
   const notification = await prisma.notification.create({
     data: {
@@ -73,6 +73,7 @@ const createNotification = asyncHandler(async (req, res) => {
       type: type || 'GENERAL',
       companyName,
       eventDate: eventDate ? new Date(eventDate) : null,
+      targetBatch: targetBatch ? String(targetBatch).trim() : null,
       authorId: req.user.id,
     },
     include: {

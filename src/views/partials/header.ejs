@@ -40,6 +40,28 @@
       <i class="fa-solid fa-route"></i>
       Roadmap AI
     </a>
+
+    <% if (typeof user !== 'undefined' && user && user.role === 'ADMIN') { %>
+    <div class="sidebar-section-title sidebar-section-admin">
+      <i class="fa-solid fa-shield-halved"></i> Admin Panel
+    </div>
+    <a href="/admin" class="sidebar-link sidebar-link-admin <%= typeof currentPath !== 'undefined' && currentPath === '/admin' ? 'active' : '' %>">
+      <i class="fa-solid fa-gauge-high"></i>
+      Admin Home
+    </a>
+    <a href="/admin/notices" class="sidebar-link sidebar-link-admin <%= typeof currentPath !== 'undefined' && currentPath === '/admin/notices' ? 'active' : '' %>">
+      <i class="fa-solid fa-bullhorn"></i>
+      Manage Notices
+    </a>
+    <a href="/admin/companies" class="sidebar-link sidebar-link-admin <%= typeof currentPath !== 'undefined' && currentPath === '/admin/companies' ? 'active' : '' %>">
+      <i class="fa-solid fa-briefcase"></i>
+      Manage Companies
+    </a>
+    <a href="/admin/students" class="sidebar-link sidebar-link-admin <%= typeof currentPath !== 'undefined' && currentPath === '/admin/students' ? 'active' : '' %>">
+      <i class="fa-solid fa-users"></i>
+      Student Data
+    </a>
+    <% } %>
   </nav>
 
   <!-- AI Chat Toggle -->
